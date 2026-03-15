@@ -47,8 +47,9 @@ OSF registration: pending (M001/S05 task — must complete before Phase 1).
 
 ## Current State
 
-**Active milestone:** M001/S02 — Concordia v2.0 Integration + Trade Island
-**Games completed:** 0 / 335
+**Active milestone:** M001/S03 — Prompt Templates + Tolerant Parser (next)
+**Completed:** S01 (LiteLLM routing) ✅, S02 (Trade Island engine) ✅
+**Games completed:** 1 / 335 (1 calibration run — Mistral-mono, 25 rounds, $0.00)
 **Cost burned:** $0.0008 / $80.00
 
 ## Deliverables
@@ -64,8 +65,8 @@ OSF registration: pending (M001/S05 task — must complete before Phase 1).
 
 - 🔄 **M001: Infrastructure + Phase 0** — Setup, calibration, format ablation (30 games)
   - ✅ S01: LiteLLM + Environment (complete)
-  - ⬜ S02: Concordia + Trade Island (next)
-  - ⬜ S03: Prompt Templates
+  - ✅ S02: Trade Island Engine (complete — custom loop, not Concordia; see D023)
+  - 🔄 S03: Prompt Templates + Tolerant Parser (next)
   - ⬜ S04: Phase 0 calibration games
   - ⬜ S05: OSF pre-registration (blocks M002)
 - ⬜ **M002: Phase 1 Monoculture** — 120 games (4 families × 30)
@@ -76,20 +77,24 @@ OSF registration: pending (M001/S05 task — must complete before Phase 1).
 
 ```
 LiteLLM (routing, retry, cost tracking, budget cap)
-    ├── Groq (Llama)         groq/llama-3.3-70b-versatile
-    ├── OpenRouter (DeepSeek) openrouter/deepseek/deepseek-chat
-    ├── Google (Gemini)       gemini/gemini-2.5-flash  [thinking disabled]
-    └── Mistral               mistral/mistral-small-2506
+    ├── Groq (Llama)          groq/llama-3.3-70b-versatile
+    ├── OpenRouter (DeepSeek)  openrouter/deepseek/deepseek-chat
+    ├── Google (Gemini)        gemini/gemini-2.5-flash  [thinking disabled]
+    └── Mistral                mistral/mistral-small-2506
         ↕
-Concordia v2.0 (simulation engine)
-    ├── Simultaneous Engine (parallel agent actions)
-    ├── Per-Agent LLM Override
-    ├── Trade Island Components (evaluate built-in marketplace first)
-    ├── Prefix-First Prompt Templates (cache-optimized)
-    ├── Checkpoint System (per-round saves)
-    └── Structured JSONL Logger
+Custom Simulation Loop — src/simulation/ (NOT Concordia — see D023)
+    ├── GameConfig (Pydantic) — named configs: mistral-mono, phase0, pairwise-{A}-{B}
+    ├── GameRunner — 25-round loop; flush-before-checkpoint ordering enforced
+    ├── Agent — act(), respond_to_trade(), reflect() [rounds 5/10/15/20/25]
+    ├── GM — sequential double-spend-safe trade validation (working-copy inventory)
+    ├── GameLogger — line-buffered JSONL; fsync at checkpoints
+    └── LLMRouter — per-provider kwargs; DeepSeek R1 reflection override; float cost guard
         ↓
-Analysis: Polars · statsmodels · scikit-learn · NetworkX · sentence-transformers · seaborn
+scripts/run_game.py — CLI entry point (--config, --games); $80 BudgetManager cap
+        ↓
+data/raw/{game_id}/game.jsonl + checkpoint_r{N:02d}.json (25 per game)
+        ↓
+Analysis (S03+): Polars · statsmodels · scikit-learn · NetworkX · sentence-transformers · seaborn
 ```
 
 ## Source of Truth

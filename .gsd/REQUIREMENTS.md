@@ -15,14 +15,14 @@ Research capability contract and coverage. Active = must complete. Deferred = po
 - Primary owner: M001/S01
 - Validation: unmapped
 
-### R002 — Concordia v2.0 Trade Island Integration
+### R002 — Trade Island Simulation Engine
 - Class: core-infrastructure
 - Status: active
-- Description: Concordia v2.0 Entity-Component architecture running Trade Island. Simultaneous engine for agent action/trade phases, sequential GM resolution, per-agent LLM override, per-round checkpoint saves, structured JSON lines logging.
-- Why it matters: Concordia provides the simulation harness. Trade Island components either reuse built-in marketplace (save weeks) or are built custom.
+- Description: Custom 6-module simulation loop (not Concordia — see D023) running Trade Island. Sequential GM resolution, per-agent LLM routing, per-round checkpoint saves, structured JSONL logging. 25-round game loop validated with real Mistral API calls.
+- Why it matters: Custom loop gives full control over per-provider LLM kwargs required by D018–D022. Concordia's text-only interface was incompatible with chat-completion arguments.
 - Source: blueprint §3, §6
 - Primary owner: M001/S02
-- Validation: unmapped
+- Validation: M001/S02 — `python scripts/run_game.py --config mistral-mono --games 1` completed; 150 round_end lines; 25 checkpoints; total_cost_usd=0.0 (≤$0.02). Double-spend prevention verified by inline test and test_smoke.py. Partially validated — ≥1 accepted trade not yet confirmed in live run (D037; Phase 0 calibration pending).
 
 ### R003 — Cache-Optimized Prompt Templates
 - Class: performance-optimization
@@ -103,7 +103,7 @@ Research capability contract and coverage. Active = must complete. Deferred = po
 - Why it matters: 335 games × 25 rounds × 6 agents = ~50K data points. Manual data cleaning is not feasible.
 - Source: blueprint §6 (Concordia v2.0 JSON logging)
 - Primary owner: M001/S02 (schema), M002/S01 (validation), M004/S01 (pipeline)
-- Validation: unmapped
+- Validation: M001/S02 — JSONL schema locked. Events: game_start, round_start, agent_action, gm_resolution, build, grain_consumption, reflection, round_end, game_end. round_end flat fields `game_id, model_family, round, agent_id, vp` confirmed by test_smoke.py assertions and live grep. 9 H2 fields confirmed in gm_resolution events. Polars pipeline ingestion not yet validated (M002/S01 scope).
 
 ### R012 — Paper + Open-Source Deliverables
 - Class: output
@@ -165,7 +165,8 @@ Research capability contract and coverage. Active = must complete. Deferred = po
 ## Coverage Summary
 
 - **Active:** 12 requirements
-- **Validated:** 0 (project starting)
+- **Validated:** 0 (full validation pending Phase 0 + Phase 1 completion)
+- **Partially validated:** 2 (R002, R011 — schema and engine proven; accepted-trade path and pipeline not yet)
 - **Deferred:** 3
 - **Out of scope:** 3
 - **Total:** 18
@@ -174,8 +175,8 @@ Research capability contract and coverage. Active = must complete. Deferred = po
 
 | ID | Class | Status | Primary Owner | Validated |
 |---|---|---|---|---|
-| R001 | core-infrastructure | active | M001/S01 | unmapped |
-| R002 | core-infrastructure | active | M001/S02 | unmapped |
+| R001 | core-infrastructure | active | M001/S01 | M001/S01 ✅ |
+| R002 | core-infrastructure | active | M001/S02 | M001/S02 partial — engine + schema ✅; accepted-trade path pending (D037) |
 | R003 | performance-optimization | active | M001/S03 | unmapped |
 | R004 | research-phase | active | M001/S04 | unmapped |
 | R005 | research-phase | active | M002 | unmapped |
@@ -184,7 +185,7 @@ Research capability contract and coverage. Active = must complete. Deferred = po
 | R008 | research-phase | active | M003/S03 | unmapped |
 | R009 | analysis | active | M004/S01 | unmapped |
 | R010 | research-integrity | active | M001/S05 | unmapped |
-| R011 | data-management | active | M001/S02 | unmapped |
+| R011 | data-management | active | M001/S02 | M001/S02 partial — schema locked ✅; Polars pipeline pending (M002/S01) |
 | R012 | output | active | M004/S02-S03 | unmapped |
 | R020 | extensibility | deferred | — | — |
 | R021 | extensibility | deferred | — | — |

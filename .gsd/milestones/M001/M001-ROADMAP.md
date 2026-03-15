@@ -71,8 +71,8 @@ This milestone is complete only when all are true:
 - [x] **S01: LiteLLM + Environment Setup** `risk:high` `depends:[]`
   > After this: All 4 providers (Groq, OpenRouter/DeepSeek, Google, Mistral) return valid completions; per-provider call signatures and workarounds confirmed and documented in DECISIONS.md D018–D022. ✅ COMPLETE
 
-- [ ] **S02: Trade Island Engine** `risk:high` `depends:[S01]`
-  > After this: `python scripts/run_game.py --config mistral-mono --games 1` runs a complete 25-round game, writes valid JSONL to `data/raw/{game_id}/game.jsonl`, saves per-round checkpoints, and costs ≤$0.02 — verified by inspecting the log file directly.
+- [x] **S02: Trade Island Engine** `risk:high` `depends:[S01]`
+  > After this: `python scripts/run_game.py --config mistral-mono --games 1` runs a complete 25-round game, writes valid JSONL to `data/raw/{game_id}/game.jsonl`, saves per-round checkpoints, and costs ≤$0.02 — verified by inspecting the log file directly. ✅ COMPLETE
 
 - [ ] **S03: Prompt Templates + Tolerant Parser** `risk:medium` `depends:[S02]`
   > After this: all 6 prompt functions (agent_action, trade_response, gm_resolution, building_decision, reflection, json_utils) are implemented; `pytest tests/test_prompts.py` passes all edge-case parse tests; token counts are within 20% of blueprint targets; the game engine uses these templates for all subsequent runs.

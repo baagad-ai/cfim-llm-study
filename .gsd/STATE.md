@@ -1,7 +1,7 @@
 # GSD State
 
 **Active Milestone:** M001 — Infrastructure + Phase 0
-**Active Slice:** S02 — Trade Island Engine
+**Active Slice:** S03 — Prompt Templates + Tolerant Parser
 **Phase:** planning
 **Requirements Status:** 12 active · 0 validated · 3 deferred · 3 out of scope
 
@@ -18,4 +18,4 @@
 - None
 
 ## Next Action
-Plan slice S02 (Trade Island Engine).
+Plan slice S03 (Prompt Templates + Tolerant Parser).
