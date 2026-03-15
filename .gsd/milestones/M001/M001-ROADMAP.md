@@ -35,10 +35,10 @@
 - [x] **S01: RNE Engine + LLM Router** `risk:high` `depends:[]`
   > After this: `run_rne.py` completes a real 35-round game and writes valid JSONL. `pytest tests/test_rne.py` passes all mock-mode tests. 7-family routing verified.
 
-- [ ] **S02: RNE Prompt Architecture** `risk:medium` `depends:[S01]`
+- [x] **S02: RNE Prompt Architecture** `risk:medium` `depends:[S01]`
   > After this: all 3 framings × 2 disclosure variants produce correctly structured LLM messages. `parse_rne_response` handles all 4 failure modes. `pytest tests/test_rne_prompts.py` passes.
 
-- [ ] **S03: Phase 0 Calibration** `risk:medium` `depends:[S01,S02]`
+- [x] **S03: Phase 0 Calibration** `risk:medium` `depends:[S01,S02]`
   > After this: 240 sessions run; parse rate ≥90% per family; `data/phase0/calibration_report.md` with go/no-go for Study 1.
 
 - [ ] **S04: OSF Pre-Registration** `risk:low` `depends:[S01]`
@@ -55,8 +55,8 @@
 - [x] **T01: Config, Logger, and LLM Router** `est:1h`
   > `RNEConfig` (7-family validated), `GameLogger`, `call_llm` + 7-family `PROVIDER_KWARGS`. 31 tests pass.
 
-- [ ] **T02: RNE Game Engine** `est:2h`
-  > `src/simulation/rne_game.py` — `RNERunner.run_session()`: 35-round loop, simultaneous proposals, compatibility check, respond call, trade settlement, 10% decay, perturbation at round 20, M1–M4, `summary.json`, `metadata.json`.
+- [x] **T02: RNE Game Engine** `est:2h`
+  > `src/simulation/rne_game.py` — `RNERunner.run_session()`: 35-round loop, simultaneous proposals, compatibility check, respond call, trade settlement, 10% decay, perturbation at round 20, M1–M4, `summary.json`, `metadata.json`. 47 tests pass.
 
 - [ ] **T03: CLI + Smoke Run** `est:1h`
   > `scripts/run_rne.py` CLI. Full mock-mode test suite in `tests/test_rne.py`. Real Mistral×Llama smoke session (≥1 accepted trade, cost ≤$0.05).

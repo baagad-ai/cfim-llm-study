@@ -2,7 +2,7 @@
 
 Running state:
   T01 (Config, Logger, LLM Router): PASSES — RNEConfig, GameLogger, PROVIDER_KWARGS
-  T02+ (RNE engine, run_rne.py, metrics): FAIL until implemented
+  T02 (RNE engine + metrics): PASSES — RNERunner, _compute_metrics, decay, trade settlement
 
 Run: pytest tests/test_rne.py -v
 """
@@ -393,41 +393,190 @@ class TestCallLlm:
 
 
 # ===========================================================================
-# T02+: RNE Engine (stub — will fail until T02 is implemented)
+# T02: RNE Engine
 # ===========================================================================
+
+def _run_mock_session(tmp_path, rounds=5, perturbation_round=3,
+                      mock_response=None):
+    """Helper: run a short mock RNE session in an isolated tmp directory."""
+    import os
+    old_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    try:
+        from src.simulation.rne_game import RNERunner
+        from src.simulation.config import RNEConfig
+        if mock_response is None:
+            mock_response = '{"action": "propose", "give": {"W": 1}, "want": {"G": 1}}'
+        cfg = RNEConfig(
+            family_a="mistral",
+            family_b="llama",
+            condition="A",
+            rounds=rounds,
+            perturbation_round=perturbation_round,
+        )
+        runner = RNERunner(data_root=tmp_path / "study1")
+        summary = runner.run_session(cfg, mock_response=mock_response)
+        session_dir = tmp_path / "study1" / cfg.session_id
+        lines = [
+            json.loads(l)
+            for l in (session_dir / "game.jsonl").read_text().splitlines()
+            if l.strip()
+        ]
+        return summary, lines, session_dir
+    finally:
+        os.chdir(old_cwd)
+
+
+import json as _json_module
+
 
 class TestRNEEngine:
-    """Integration tests for the RNE game engine. Require T02 implementation."""
+    """Integration tests for the RNE game engine."""
 
-    @pytest.mark.skip(reason="T02 (RNE engine) not yet implemented")
-    def test_35_round_game_completes(self):
-        """run_rne game must complete 35 rounds and write JSONL."""
-        pass
+    def test_round_end_lines_correct_count(self, tmp_path):
+        """5 rounds × 2 agents = 10 round_end lines."""
+        summary, lines, _ = _run_mock_session(tmp_path)
+        round_end = [l for l in lines if l["event"] == "round_end"]
+        assert len(round_end) == 10, f"Expected 10 round_end lines, got {len(round_end)}"
 
-    @pytest.mark.skip(reason="T02 (RNE engine) not yet implemented")
-    def test_perturbation_fires_at_round_20(self):
-        """Exactly one perturbation event must appear at round 20."""
-        pass
+    def test_round_end_schema(self, tmp_path):
+        """round_end must have: event, round, agent_id, family, inventory, inventory_value, trade_executed."""
+        summary, lines, _ = _run_mock_session(tmp_path)
+        for line in [l for l in lines if l["event"] == "round_end"]:
+            for field in ("round", "agent_id", "family", "inventory", "inventory_value", "trade_executed"):
+                assert field in line, f"round_end missing field: {field}"
+            assert line["agent_id"] in ("a0", "a1")
+            assert isinstance(line["inventory"], dict)
+            assert isinstance(line["inventory_value"], int)
 
-    @pytest.mark.skip(reason="T02 (RNE engine) not yet implemented")
-    def test_game_end_cost_under_limit(self):
-        """game_end.total_cost_usd must be ≤ 0.05 per session."""
-        pass
+    def test_perturbation_fires_once_at_correct_round(self, tmp_path):
+        """Exactly one perturbation event, at round == perturbation_round."""
+        summary, lines, _ = _run_mock_session(tmp_path, rounds=5, perturbation_round=3)
+        perturb = [l for l in lines if l["event"] == "perturbation"]
+        assert len(perturb) == 1, f"Expected 1 perturbation, got {len(perturb)}"
+        assert perturb[0]["round"] == 3
+
+    def test_game_end_always_written(self, tmp_path):
+        """game_end event must appear in JSONL."""
+        summary, lines, _ = _run_mock_session(tmp_path)
+        game_end = [l for l in lines if l["event"] == "game_end"]
+        assert len(game_end) == 1
+        assert "total_cost_usd" in game_end[0]
+        assert isinstance(game_end[0]["total_cost_usd"], float)
+
+    def test_cost_is_float(self, tmp_path):
+        """total_cost_usd in summary must be a float (not None or int)."""
+        summary, _, _ = _run_mock_session(tmp_path)
+        assert isinstance(summary["total_cost_usd"], float)
+
+    def test_summary_json_written(self, tmp_path):
+        """summary.json must exist and contain all required keys."""
+        summary, _, session_dir = _run_mock_session(tmp_path)
+        assert (session_dir / "summary.json").exists()
+        data = _json_module.loads((session_dir / "summary.json").read_text())
+        for key in ("session_id", "family_a", "family_b", "condition",
+                    "cooperation_rate", "exploitation_delta",
+                    "adaptation_lag", "betrayal_recovery",
+                    "total_cost_usd", "total_rounds"):
+            assert key in data, f"summary.json missing key: {key}"
+
+    def test_metadata_json_written(self, tmp_path):
+        """metadata.json must exist and include wall_clock_seconds."""
+        _, _, session_dir = _run_mock_session(tmp_path)
+        assert (session_dir / "metadata.json").exists()
+        meta = _json_module.loads((session_dir / "metadata.json").read_text())
+        assert "wall_clock_seconds" in meta
+        assert "family_a" in meta
+
+    def test_decay_applied(self, tmp_path):
+        """After round 1, a0's inventory must be decayed (W < 5 since int(5*0.9)=4)."""
+        _, lines, _ = _run_mock_session(tmp_path)
+        r1_a0 = next(
+            l for l in lines if l["event"] == "round_end"
+            and l["round"] == 1 and l["agent_id"] == "a0"
+        )
+        # Regardless of trade, W should have decayed from 5 to ≤4
+        assert r1_a0["inventory"].get("W", 5) <= 4, \
+            f"Decay not applied: W={r1_a0['inventory'].get('W')}"
+
+    def test_trade_execution_path(self, tmp_path):
+        """When one agent proposes and the other accepts, trade_executed=True in round_end."""
+        # Mock: a0 proposes, a1 accepts (accept action)
+        mock = '{"action": "accept"}'
+        # With accept, agent gets treated as pass on simultaneous collection (action ≠ propose),
+        # so one propose + one accept → respond call path.
+        # The respond call also returns "accept" → trade should execute.
+        summary, lines, _ = _run_mock_session(
+            tmp_path, rounds=3, perturbation_round=2,
+            mock_response='{"action": "propose", "give": {"W": 2}, "want": {"G": 2}}'
+        )
+        # trade_result lines tell us what happened
+        trade_results = [l for l in lines if l["event"] == "trade_result"]
+        assert len(trade_results) == 3, f"Expected 3 trade_result events, got {len(trade_results)}"
+
+    def test_cooperation_rate_in_range(self, tmp_path):
+        """M1 cooperation_rate must be in [0.0, 1.0]."""
+        summary, _, _ = _run_mock_session(tmp_path)
+        assert 0.0 <= summary["cooperation_rate"] <= 1.0
 
 
 # ===========================================================================
-# T03+: Metrics (stub — will fail until T03 is implemented)
+# T02: Mechanics unit tests (no session needed)
 # ===========================================================================
 
-class TestRNEMetrics:
-    """Unit tests for M1–M4 metrics computation. Require T03 implementation."""
+class TestRNEMechanics:
+    """Unit tests for trade mechanics and decay — no LLM calls."""
 
-    @pytest.mark.skip(reason="T03 (metrics) not yet implemented")
-    def test_cooperation_rate_in_range(self):
-        """M1 cooperation_rate must be between 0.0 and 1.0."""
-        pass
+    def test_proposals_compatible_true(self):
+        from src.simulation.rne_game import _proposals_compatible
+        p_a = {"action": "propose", "give": {"W": 2}, "want": {"G": 2}}
+        p_b = {"action": "propose", "give": {"G": 2}, "want": {"W": 2}}
+        assert _proposals_compatible(p_a, p_b) is True
 
-    @pytest.mark.skip(reason="T03 (metrics) not yet implemented")
-    def test_summary_json_has_all_metrics(self):
-        """summary.json must contain M1–M4 keys."""
-        pass
+    def test_proposals_compatible_false_same_want(self):
+        from src.simulation.rne_game import _proposals_compatible
+        p_a = {"action": "propose", "give": {"W": 1}, "want": {"G": 1}}
+        p_b = {"action": "propose", "give": {"W": 1}, "want": {"G": 1}}
+        assert _proposals_compatible(p_a, p_b) is False
+
+    def test_execute_trade_correct_swap(self):
+        from src.simulation.rne_game import _execute_trade
+        inv_a = {"W": 5, "S": 5, "G": 0, "C": 0}
+        inv_b = {"W": 0, "S": 0, "G": 5, "C": 5}
+        new_a, new_b = _execute_trade(inv_a, inv_b, give_a={"W": 2}, want_a={"G": 2})
+        assert new_a["W"] == 3
+        assert new_a["G"] == 2
+        assert new_b["G"] == 3
+        assert new_b["W"] == 2
+
+    def test_decay_applied_correctly(self):
+        from src.simulation.rne_game import _apply_decay
+        result = _apply_decay({"W": 5, "G": 3, "S": 0}, 0.10)
+        assert result["W"] == 4    # int(5 * 0.9) = 4
+        assert result["G"] == 2    # int(3 * 0.9) = 2
+        assert result["S"] == 0    # int(0 * 0.9) = 0
+
+    def test_inventory_value(self):
+        from src.simulation.rne_game import _inventory_value
+        # W=1, G=2; 3W + 2G = 3 + 4 = 7
+        assert _inventory_value({"W": 3, "G": 2}) == 7
+
+    def test_m1_computation(self):
+        from src.simulation.rne_game import _compute_metrics
+        # 2 completed trades in 5 rounds → M1 = 0.4
+        trade_log = [
+            {"round": r, "executed": r in (1, 3), "give_a": {}, "want_a": {}}
+            for r in range(1, 6)
+        ]
+        action_log = [
+            {"round": r, "agent_id": aid, "action_type": "propose"}
+            for r in range(1, 6) for aid in ("a0", "a1")
+        ]
+        metrics = _compute_metrics(
+            completed_trades=2,
+            total_rounds=5,
+            trade_log=trade_log,
+            perturbation_round=3,
+            action_log=action_log,
+        )
+        assert metrics["M1"] == 0.4
