@@ -16,61 +16,82 @@ A controlled research study examining how model family (architecture + training)
 1. **First complete pairwise interaction matrix** of 4 model families in economic simulation, revealing matchup-specific cooperation, competition, and exploitation patterns invisible in monoculture studies
 2. **Controlled persona-vs-architecture experiment** demonstrating model family drives more behavioral variation than prompt engineering
 
-## Model Families
+## Model Families (Actual Deployment — Updated from Blueprint)
 
-| ID | Model | Provider | Role |
-|---|---|---|---|
-| llama | Llama 3.3 70B | Groq | Agent |
-| deepseek | DeepSeek V3.2 (chat) | DeepSeek API | Agent |
-| deepseek-r | DeepSeek V3.2 (reasoner) | DeepSeek API | Reflection only |
-| gemini | Gemini 2.5 Flash | Google AI Studio | Agent |
-| mistral | Mistral Small 3.1 | Mistral La Plateforme | Agent + GM |
+| ID | Model | Provider | API Route | Role |
+|---|---|---|---|---|
+| llama | Llama 3.3 70B | Groq | `groq/llama-3.3-70b-versatile` | Agent |
+| deepseek | DeepSeek V3 | OpenRouter | `openrouter/deepseek/deepseek-chat` | Agent |
+| deepseek-r | DeepSeek R1 | OpenRouter | `openrouter/deepseek/deepseek-r1` | Reflection only |
+| gemini | Gemini 2.5 Flash | Google AI Studio (paid) | `gemini/gemini-2.5-flash` | Agent |
+| mistral | Mistral Small 2506 | Mistral La Plateforme | `mistral/mistral-small-2506` | Agent + GM |
+
+**Note:** Direct DeepSeek API unavailable from India — using OpenRouter proxy (D019). Mistral version changed from 3.1-2503 to 2506 (D018).
 
 ## Pre-Registered Hypotheses
 
 - **H1:** Gini coefficient at round 25 differs across 4 families (Kruskal-Wallis, α=0.05)
 - **H2:** Cross-model trade acceptance rate depends on pairing identity (logistic mixed-effects)
-- **H3:** VP ratio deviates from 1.0 for ≥2 of 6 pairwise conditions
-- **H4:** Architecture variance > persona variance on ≥3 of 5 metrics
+- **H3:** VP ratio deviates from 1.0 for ≥2 of 6 pairwise conditions (t-test, BH-corrected)
+- **H4:** Architecture variance > persona variance on ≥3 of 5 metrics (permutation test, seed=42)
+
+Analysis stubs committed: commit `c4a9a1d` (2026-03-15), before any data collected.
+OSF registration: pending (M001/S05 task — must complete before Phase 1).
 
 ## Budget
 
 - Total API cost: ~$32 (₹2,700) for 335 games
 - Hard cap: $80 via LiteLLM budget config
-- Available budget: ₹12,500 ($148) — 55% utilization
+- Available budget: ₹12,500 ($148)
+- Burned to date: $0.0008 (connectivity testing only)
+
+## Current State
+
+**Active milestone:** M001/S02 — Concordia v2.0 Integration + Trade Island
+**Games completed:** 0 / 335
+**Cost burned:** $0.0008 / $80.00
 
 ## Deliverables
 
 1. Paper (NeurIPS 2026 Workshop + AAMAS 2027 + arXiv)
-2. `concordia-pairwise` — Open-source LiteLLM + Concordia v2.0 library
-3. `model-pairwise-benchmark` — One-command benchmarking tool
-4. `trade-island-dataset` — Full game logs on Hugging Face Datasets
+2. `concordia-pairwise` — open-source LiteLLM + Concordia v2.0 library
+3. `model-pairwise-benchmark` — one-command benchmarking tool
+4. `trade-island-dataset` — full game logs on Hugging Face Datasets
 5. Analysis notebooks (pre-registered, reproducible)
 6. Blog/content (heatmaps, Twitter thread, findings narrative)
 
 ## Milestone Sequence
 
 - 🔄 **M001: Infrastructure + Phase 0** — Setup, calibration, format ablation (30 games)
-- ⬜ **M002: Phase 1 Monoculture** — 120 games, 4 model families × 30 games each
-- ⬜ **M003: Phase 2 Pairwise + Persona** — 185 games (pairwise + 2B persona + 2C validation)
-- ⬜ **M004: Analysis + Writing** — Full statistical analysis, figures, paper submission
+  - ✅ S01: LiteLLM + Environment (complete)
+  - ⬜ S02: Concordia + Trade Island (next)
+  - ⬜ S03: Prompt Templates
+  - ⬜ S04: Phase 0 calibration games
+  - ⬜ S05: OSF pre-registration (blocks M002)
+- ⬜ **M002: Phase 1 Monoculture** — 120 games (4 families × 30)
+- ⬜ **M003: Phase 2 Pairwise + Persona** — 185 games
+- ⬜ **M004: Analysis + Writing** — stats, figures, paper, open-source release
 
-## Architecture / Key Stack
+## Architecture / Stack
 
 ```
-LiteLLM (routing, cost tracking, retry, JSON mode, budget cap)
-    ↕
+LiteLLM (routing, retry, cost tracking, budget cap)
+    ├── Groq (Llama)         groq/llama-3.3-70b-versatile
+    ├── OpenRouter (DeepSeek) openrouter/deepseek/deepseek-chat
+    ├── Google (Gemini)       gemini/gemini-2.5-flash  [thinking disabled]
+    └── Mistral               mistral/mistral-small-2506
+        ↕
 Concordia v2.0 (simulation engine)
     ├── Simultaneous Engine (parallel agent actions)
-    ├── Per-Agent LLM Override (pairwise support)
+    ├── Per-Agent LLM Override
     ├── Trade Island Components (evaluate built-in marketplace first)
     ├── Prefix-First Prompt Templates (cache-optimized)
-    ├── Checkpoint System (per-round state saves)
-    └── Structured JSON Lines Logger
+    ├── Checkpoint System (per-round saves)
+    └── Structured JSONL Logger
         ↓
-Analysis: Polars, statsmodels, scikit-learn, NetworkX, sentence-transformers, seaborn
+Analysis: Polars · statsmodels · scikit-learn · NetworkX · sentence-transformers · seaborn
 ```
 
 ## Source of Truth
 
-Blueprint: `research_blueprint_v6.md` in this directory. All decisions should be traceable to the blueprint. Deviations are recorded in `DECISIONS.md`.
+Blueprint: `research_blueprint_v6.md`. All deviations in `.gsd/DECISIONS.md`.

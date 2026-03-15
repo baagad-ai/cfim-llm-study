@@ -9,13 +9,44 @@
     "target": 335
   },
   "cost_usd": {
-    "burned": 0.0,
+    "burned": 0.0008,
     "cap": 80.0,
+    "connectivity_testing": 0.0008,
     "phase0_budget": 1.50,
     "phase1_budget": 6.00,
     "phase2_budget": 10.50,
     "phase2b_budget": 1.00,
     "phase2c_budget": 1.05
+  },
+  "providers": {
+    "groq_llama": {
+      "model": "groq/llama-3.3-70b-versatile",
+      "status": "verified",
+      "json_mode": "response_format json_object",
+      "verified_date": "2026-03-15"
+    },
+    "openrouter_deepseek": {
+      "model": "openrouter/deepseek/deepseek-chat",
+      "status": "verified",
+      "json_mode": "response_format json_object",
+      "note": "OpenRouter proxy — direct DeepSeek API blocked from India",
+      "verified_date": "2026-03-15"
+    },
+    "gemini_flash": {
+      "model": "gemini/gemini-2.5-flash",
+      "status": "verified",
+      "json_mode": "none — use fence stripper",
+      "thinking_disabled": "thinking={'type':'disabled','budget_tokens':0}",
+      "tier": "paid",
+      "verified_date": "2026-03-15"
+    },
+    "mistral_small": {
+      "model": "mistral/mistral-small-2506",
+      "status": "verified",
+      "json_mode": "response_format json_object",
+      "note": "Pinned to 2506 dated version (3.1-2503 unavailable on this account)",
+      "verified_date": "2026-03-15"
+    }
   },
   "json_parse_success_rate": {
     "llama": null,
@@ -23,6 +54,17 @@
     "gemini": null,
     "mistral": null
   },
+  "format_decisions": {
+    "llama": null,
+    "deepseek": null,
+    "gemini": null,
+    "mistral": null
+  },
+  "gm_confound_significant": null,
   "hypotheses_preregistered": false,
-  "osf_registration_id": null
+  "osf_registration_id": null,
+  "osf_project_url": null,
+  "osf_registration_url": null,
+  "github_repo": null,
+  "preregistration_commit": "c4a9a1d"
 }
