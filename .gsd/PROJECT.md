@@ -1,102 +1,119 @@
-# Pairwise Behavioral Signatures — LLM Family Economic Simulation
+# Cross-Family Interaction Matrix (CFIM)
+*How LLM Behavioral Profiles Shift as a Function of Opponent Model Family*
 
-## What This Is
+**Status:** Active — M001 executing (S01 T01 complete)
+**Target venues:** AAMAS 2027 full paper · NeurIPS 2026 Foundation Models workshop (short paper)
+**Design doc:** `.gsd/SIMULATION_DESIGN.md` (authoritative — all implementation follows this)
+**Last updated:** 2026-03-15
 
-A controlled research study examining how model family (architecture + training) shapes multi-agent economic behavior. Six LLM agents play "Trade Island" — a 25-round resource-trading game with VP-based victory — across 335 total games spanning monoculture, pairwise, persona-vs-architecture, and temporal validation conditions.
+---
 
-**Paper Title:** *"Pairwise Behavioral Signatures: How Model Family Shapes Multi-Agent Economic Cooperation and Competition"*
+## The Claim
 
-**Target Venues:**
-- NeurIPS 2026 Foundation Models Workshop (September 2026 deadline) — short paper
-- AAMAS 2027 (October 2026 deadline) — full paper
-- Backup: AAAI 2027 (September 2026 deadline)
+LLM cooperation profiles are not fixed traits — they are opponent-contingent responses. The same model family behaves measurably differently facing a same-family opponent versus a cross-family opponent. These relational response patterns form a stable, reproducible N×N matrix (the CFIM) that serves as a richer behavioral characterization than any single-condition cooperation rate.
 
-## Two Core Contributions
+---
 
-1. **First complete pairwise interaction matrix** of 4 model families in economic simulation, revealing matchup-specific cooperation, competition, and exploitation patterns invisible in monoculture studies
-2. **Controlled persona-vs-architecture experiment** demonstrating model family drives more behavioral variation than prompt engineering
+## Two-Study Structure
 
-## Model Families (Actual Deployment — Updated from Blueprint)
+**Study 1 (Primary): CFIM via Repeated Negotiated Exchange (RNE)**
+- 2-agent dyadic bilateral trading game, 35 rounds per session
+- 7 model families × 7 families = 28 unique pairs (upper triangle)
+- 3 game conditions (A: coordination, B: mixed-motive, C: asymmetric power)
+- 2 disclosure sub-conditions (blind / disclosed)
+- 3 prompt framings (neutral / social / strategic)
+- 20 sessions per cell → 3,360 total sessions
+- Measures M1–M6 (cooperation rate, exploitation delta, adaptation lag, betrayal recovery, min acceptable offer, identity sensitivity)
 
-| ID | Model | Provider | API Route | Role |
-|---|---|---|---|---|
-| llama | Llama 3.3 70B | Groq | `groq/llama-3.3-70b-versatile` | Agent |
-| deepseek | DeepSeek V3 | OpenRouter | `openrouter/deepseek/deepseek-chat` | Agent |
-| deepseek-r | DeepSeek R1 | OpenRouter | `openrouter/deepseek/deepseek-r1` | Reflection only |
-| gemini | Gemini 2.5 Flash | Google AI Studio (paid) | `gemini/gemini-2.5-flash` | Agent |
-| mistral | Mistral Small 2506 | Mistral La Plateforme | `mistral/mistral-small-2506` | Agent + GM |
+**Study 2 (Ecological validity): Harbour 6-agent game**
+- Tests whether CFIM bilateral patterns predict multi-agent dynamics
+- Mono + mixed compositions designed from Study 1 findings
+- ~80 games
 
-**Note:** Direct DeepSeek API unavailable from India — using OpenRouter proxy (D019). Mistral version changed from 3.1-2503 to 2506 (D018).
+---
 
-## Pre-Registered Hypotheses
+## Model Families (7 — Claude Haiku excluded, budget constraint)
 
-- **H1:** Gini coefficient at round 25 differs across 4 families (Kruskal-Wallis, α=0.05)
-- **H2:** Cross-model trade acceptance rate depends on pairing identity (logistic mixed-effects)
-- **H3:** VP ratio deviates from 1.0 for ≥2 of 6 pairwise conditions (t-test, BH-corrected)
-- **H4:** Architecture variance > persona variance on ≥3 of 5 metrics (permutation test, seed=42)
+| ID | Model | Provider | Route |
+|---|---|---|---|
+| llama | Llama 3.3 70B | Groq | `groq/llama-3.3-70b-versatile` |
+| deepseek | DeepSeek V3 | OpenRouter | `openrouter/deepseek/deepseek-chat` |
+| gemini | Gemini 2.5 Flash | Google | `gemini/gemini-2.5-flash` |
+| mistral | Mistral Small 2506 | Mistral | `mistral/mistral-small-2506` |
+| gpt4o-mini | GPT-4o mini | OpenAI | `openai/gpt-4o-mini` |
+| qwen | Qwen 2.5 72B | Together.ai | `together_ai/Qwen/Qwen2.5-72B-Instruct-Turbo` |
+| phi4 | Phi-4 | Together.ai | `together_ai/microsoft/phi-4` |
 
-Analysis stubs committed: commit `c4a9a1d` (2026-03-15), before any data collected.
-OSF registration: pending (M001/S05 task — must complete before Phase 1).
+---
+
+## Pre-Registered Hypotheses (H1–H5)
+
+- **H1 — Self-play premium:** Diagonal CFIM cells > off-diagonal (Wilcoxon signed-rank)
+- **H2 — Pairing identity predicts cooperation:** Mixed-effects logistic model LRT p<0.05
+- **H3 — Disclosure amplifies divergence:** |M6| > 0, larger for cross-family pairs (two-sided)
+- **H4 — Adaptation lag is pair-specific:** Kruskal-Wallis across 28 pairs, η²>0.10
+- **H5 — CFIM predicts multi-agent outcomes:** Study 2 VP variance ~ bilateral M1, R²>0.15
+
+Analysis stubs: `src/analysis/h1_self_play_premium.py` through `h5_cfim_to_multiagent.py`
+Pre-registration: `docs/osf_preregistration.md` (OSF submission pending — M001/S05)
+
+---
 
 ## Budget
 
-- Total API cost: ~$32 (₹2,700) for 335 games
-- Hard cap: $80 via LiteLLM budget config
-- Available budget: ₹12,500 ($148)
-- Burned to date: $0.0008 (connectivity testing only)
+| Phase | Sessions | Est. cost |
+|---|---|---|
+| Phase 0 calibration (4 families, 10 sessions × 3 conditions × 2 disclosure) | 240 | ~$11 |
+| Study 1 full CFIM (28 pairs × 120 sessions) | 3,360 | ~$47 |
+| Study 2 Harbour (~80 games) | 80 | ~$15 |
+| **Total** | | **~$73** |
 
-## Current State
+Hard cap: $80 via LiteLLM budget config. Buffer: $7.
 
-**Active milestone:** M001/S04 — Phase 0 Calibration (30 games) (next)
-**Completed:** S01 (LiteLLM routing) ✅, S02 (Trade Island engine) ✅, S03 (Prompt Templates + Tolerant Parser) ✅
-**Games completed:** 1 / 335 (1 calibration run — Mistral-mono, 25 rounds, $0.00)
-**Cost burned:** $0.0008 / $80.00
-
-## Deliverables
-
-1. Paper (NeurIPS 2026 Workshop + AAMAS 2027 + arXiv)
-2. `concordia-pairwise` — open-source LiteLLM + Concordia v2.0 library
-3. `model-pairwise-benchmark` — one-command benchmarking tool
-4. `trade-island-dataset` — full game logs on Hugging Face Datasets
-5. Analysis notebooks (pre-registered, reproducible)
-6. Blog/content (heatmaps, Twitter thread, findings narrative)
+---
 
 ## Milestone Sequence
 
-- 🔄 **M001: Infrastructure + Phase 0** — Setup, calibration, format ablation (30 games)
-  - ✅ S01: LiteLLM + Environment (complete)
-  - ✅ S02: Trade Island Engine (complete — custom loop, not Concordia; see D023)
-  - ✅ S03: Prompt Templates + Tolerant Parser (complete — 23/23 tests pass; phase0 config real 4-family mix)
-  - 🔄 S04: Phase 0 calibration games (next)
-  - ⬜ S05: OSF pre-registration (blocks M002)
-- ⬜ **M002: Phase 1 Monoculture** — 120 games (4 families × 30)
-- ⬜ **M003: Phase 2 Pairwise + Persona** — 185 games
-- ⬜ **M004: Analysis + Writing** — stats, figures, paper, open-source release
+- 🔄 **M001: RNE Engine + Phase 0** — Build Study 1 engine, run 240 Phase 0 sessions, OSF register
+- ⬜ **M002: Study 1 Full CFIM** — 3,360 sessions across 28 pairs × 3 conditions × 2 disclosure × 3 framings
+- ⬜ **M003: Study 2 Harbour** — 80 games, ecological validity bridge
+- ⬜ **M004: Analysis + Writing** — CFIM matrix, H1–H5 tests, paper, open-source
 
-## Architecture / Stack
+---
+
+## Current State
+
+- **Completed infrastructure:** LiteLLM routing (7 families), `RNEConfig`, `GameLogger`, `call_llm`, `PROVIDER_KWARGS`
+- **In progress:** S01 — RNE game engine (T01 done; T02 engine loop next)
+- **Pending M001:** RNE engine, RNE prompts, metrics M1–M6, run_rne.py CLI, Phase 0 calibration, OSF registration
+- **Games completed:** 0 / 3,360 Study 1 sessions
+- **Cost burned:** ~$20 (infrastructure + calibration experiments, S01–S04 prior work)
+
+## Architecture
 
 ```
-LiteLLM (routing, retry, cost tracking, budget cap)
-    ├── Groq (Llama)          groq/llama-3.3-70b-versatile
-    ├── OpenRouter (DeepSeek)  openrouter/deepseek/deepseek-chat
-    ├── Google (Gemini)        gemini/gemini-2.5-flash  [thinking disabled]
-    └── Mistral                mistral/mistral-small-2506
+LiteLLM (routing · retry · cost guard · drop_params)
+  └── 7 providers: Groq · OpenRouter · Google · Mistral · OpenAI · Together.ai(×2)
         ↕
-Custom Simulation Loop — src/simulation/ (NOT Concordia — see D023)
-    ├── GameConfig (Pydantic) — named configs: mistral-mono, phase0, pairwise-{A}-{B}
-    ├── GameRunner — 25-round loop; flush-before-checkpoint ordering enforced
-    ├── Agent — act(), respond_to_trade(), reflect() [rounds 5/10/15/20/25]
-    ├── GM — sequential double-spend-safe trade validation (working-copy inventory)
-    ├── GameLogger — line-buffered JSONL; fsync at checkpoints
-    └── LLMRouter — per-provider kwargs; DeepSeek R1 reflection override; float cost guard
-        ↓
-scripts/run_game.py — CLI entry point (--config, --games); $80 BudgetManager cap
-        ↓
-data/raw/{game_id}/game.jsonl + checkpoint_r{N:02d}.json (25 per game)
-        ↓
-Analysis (S03+): Polars · statsmodels · scikit-learn · NetworkX · sentence-transformers · seaborn
+src/simulation/
+  rne_game.py       — Study 1: 35-round bilateral RNE engine (T02, in progress)
+  harbour_game.py   — Study 2: 6-agent Harbour (M001/S04+)
+  config.py         — RNEConfig (7-family validated) · GameConfig · _MODEL_REGISTRY
+  llm_router.py     — call_llm(family) → litellm response · 7-family PROVIDER_KWARGS
+  logger.py         — GameLogger · line-buffered JSONL · data/study1/{session_id}/
+src/prompts/
+  rne_prompts.py    — Study 1 prompt functions (T02+)
+  json_utils.py     — tolerant parser · get_completion_kwargs
+src/analysis/
+  h1_self_play_premium.py … h5_cfim_to_multiagent.py  (pre-registered stubs)
+scripts/
+  run_rne.py        — Study 1 CLI (T04, pending)
+  run_harbour.py    — Study 2 CLI (M001/S04+)
+  run_phase0.py     — Phase 0 calibration CLI (M001/S03+)
 ```
 
 ## Source of Truth
 
-Blueprint: `research_blueprint_v6.md`. All deviations in `.gsd/DECISIONS.md`.
+Design: `.gsd/SIMULATION_DESIGN.md`
+Decisions: `.gsd/DECISIONS.md` (D001–D057)
+Requirements: `.gsd/REQUIREMENTS.md`

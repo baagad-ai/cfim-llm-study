@@ -1,33 +1,60 @@
 # GSD State
 
-**Active Milestone:** M001 — Infrastructure + Phase 0
+**Active Milestone:** M001 — RNE Engine + Phase 0 Calibration
 **Active Slice:** S01 — RNE Engine + LLM Router
-**Phase:** executing (T01 complete; T02 = RNE Engine next)
-**Requirements Status:** 12 active · 0 validated · 3 deferred · 3 out of scope
+**Active Task:** T02 — RNE Game Engine (next)
+**Phase:** executing
+**Slice Branch:** gsd/M001/S01
+**Last Updated:** 2026-03-15
+
+**Requirements Status:** 13 active · 2 validated · 3 deferred · 3 out of scope
+
+---
 
 ## Milestone Registry
-- 🔄 **M001:** Infrastructure + Phase 0
-- ⬜ **M002:** M002
-- ⬜ **M003:** M003
-- ⬜ **M004:** M004
+
+- 🔄 **M001:** RNE Engine + Phase 0 Calibration
+- ⬜ **M002:** Study 1 Full CFIM Data Collection (3,360 sessions)
+- ⬜ **M003:** Study 2 Harbour + Final Analysis
+- ⬜ **M004:** Paper + Open-Source Release
+
+---
+
+## M001 Slice Status
+
+| Slice | Title | Status | Notes |
+|---|---|---|---|
+| S01 | RNE Engine + LLM Router | 🔄 T01 ✅ · T02 next | T01 done: config/logger/router + 31 tests |
+| S02 | RNE Prompt Architecture | ⬜ | Starts after S01 |
+| S03 | Phase 0 Calibration | ⬜ | 240 sessions, starts after S01+S02 |
+| S04 | OSF Pre-Registration | ⬜ | Can run parallel with S03; submission pending |
+
+---
 
 ## Recent Decisions
-- D041 — call_llm split: family-keyed (RNE) vs call_llm_provider (Trade Island)
-- D042 — RNEConfig disclosure/prompt_framing defaults (blind/neutral)
-- D047 — Gemini response_format=json_object re-enabled (D021 superseded; thinking=disabled makes it safe)
-- D048–D055 — Engine v2 design decisions (broadcast phase, degradation, structured reflection)
-- D056–D057 — Analysis stubs H1–H5 matched to CFIM/RNE design; H3 uses absolute disclosure effect
 
-## Slice Status
-- [x] S01 (LiteLLM + Env Setup, original) — complete (squash-merged commit 857880e)
-- [x] S02 (Trade Island Engine) — complete (squash-merged commit 73ac4bd)
-- [x] S03 (Prompt Templates + Parser) — complete (squash-merged commit 6dec973)
-- [ ] S04 (Phase 0 Calibration) — T01/T02/T04 summaries present; T03-FIX incomplete; branch unmerged
-- [ ] S05/S07 (OSF Pre-Registration) — T01 complete (analysis stubs, osf_preregistration.md); T02 (human submission) pending
-- [ ] S01-new (RNE Engine + LLM Router) — T01 complete; T02 (game engine), T03 (metrics), T04 (CLI) pending
+- D041 — `call_llm(family)` + `call_llm_provider` split (RNE vs Trade Island)
+- D042 — `RNEConfig` disclosure/framing defaults (blind/neutral)
+- D047 — Gemini `response_format=json_object` re-enabled (D021 superseded)
+- D056 — Analysis stubs H1–H5 replaced to match CFIM/RNE design
+- D057 — H3 uses |M6| absolute value (two-sided disclosure effect)
+
+---
 
 ## Blockers
+
 - None
 
+---
+
 ## Next Action
-Execute T02: RNE Engine — `src/simulation/rne_game.py`, 35-round bilateral loop, perturbation at round 20.
+
+Execute **T02: RNE Game Engine** — write `src/simulation/rne_game.py`:
+- `RNERunner.run_session(config, mock_response=None) -> dict`
+- 35-round loop: simultaneous proposals → compatibility → respond → settlement → 10% decay → round_end
+- Perturbation at round 20 (switch opponent strategy)
+- M1–M4 computation post-game
+- `summary.json` + `metadata.json`
+- Inline `__main__` smoke test: `python src/simulation/rne_game.py` prints "smoke: ok"
+
+Plan: `.gsd/milestones/M001/slices/S01/tasks/T02-PLAN.md`

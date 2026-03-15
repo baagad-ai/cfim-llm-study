@@ -1,142 +1,186 @@
 # Requirements
 
-Research capability contract and coverage. Active = must complete. Deferred = post-paper. Out of scope = never.
+Capability and coverage contract for the CFIM study.
+Active = must complete. Deferred = post-paper. Out of scope = never.
+Design authority: `.gsd/SIMULATION_DESIGN.md`.
 
 ---
 
 ## Active
 
-### R001 — LiteLLM Multi-Provider Routing
+### R001 — LiteLLM Multi-Provider Routing (7 families)
 - Class: core-infrastructure
 - Status: active
-- Description: Single LiteLLM router handles all 4 providers (Groq, DeepSeek, Google, Mistral). Automatic retry (3×, 2s backoff), $80 hard budget cap, per-provider JSON mode enforcement, cost logging.
-- Why it matters: Without reliable routing, every provider failure cascades into broken games. The budget cap is a safety net for a ₹12,500 total budget.
-- Source: blueprint §1, §6
-- Primary owner: M001/S01
-- Validation: unmapped
+- Description: Single `call_llm(family, messages)` entry point routes to all 7 CFIM families via LiteLLM. Per-provider kwargs enforced (thinking=disabled for Gemini, json_object for all, max_tokens). float cost guard. `litellm.drop_params=True`. $80 hard cap.
+- Why it matters: Without reliable routing, every provider failure breaks sessions. The 7-family surface is the foundation every experiment depends on.
+- Source: SIMULATION_DESIGN.md §3.5
+- Primary owning slice: M001/S01
+- Supporting slices: none
+- Validation: validated
+- Notes: `call_llm`, `PROVIDER_KWARGS` (7 families), `_FAMILY_MODEL` implemented and tested. `test_model_registry_matches_router` asserts sync contract. D047 re-enabled Gemini json_object.
 
-### R002 — Trade Island Simulation Engine
+### R002 — RNE Game Engine (Study 1 primary)
 - Class: core-infrastructure
 - Status: active
-- Description: Custom 6-module simulation loop (not Concordia — see D023) running Trade Island. Sequential GM resolution, per-agent LLM routing, per-round checkpoint saves, structured JSONL logging. 25-round game loop validated with real Mistral API calls.
-- Why it matters: Custom loop gives full control over per-provider LLM kwargs required by D018–D022. Concordia's text-only interface was incompatible with chat-completion arguments.
-- Source: blueprint §3, §6
-- Primary owner: M001/S02
-- Validation: M001/S02 — `python scripts/run_game.py --config mistral-mono --games 1` completed; 150 round_end lines; 25 checkpoints; total_cost_usd=0.0 (≤$0.02). Double-spend prevention verified by inline test and test_smoke.py. Partially validated — ≥1 accepted trade not yet confirmed in live run (D037; Phase 0 calibration pending).
+- Description: `RNERunner.run_session(config)` runs a 35-round bilateral trading game: simultaneous proposals → compatibility check → respond call → trade settlement → 10% resource decay → round_end logged. Perturbation fires once at round 20. `summary.json` with M1–M4. `metadata.json` with full config. Crash-safe via line-buffered JSONL.
+- Why it matters: This is the data-collection engine for all 3,360 Study 1 sessions. Every hypothesis depends on it.
+- Source: SIMULATION_DESIGN.md §3.2–§3.4
+- Primary owning slice: M001/S01 (T02)
+- Supporting slices: M001/S02 (prompts)
+- Validation: unmapped
+- Notes: T02 is next. T01 (config/logger/router) complete. `src/simulation/rne_game.py` does not yet exist.
 
-### R003 — Cache-Optimized Prompt Templates
-- Class: performance-optimization
+### R003 — RNE Prompt Architecture
+- Class: core-infrastructure
 - Status: active
-- Description: All prompts use prefix-first structure (static → semi-static → dynamic) to maximize cache hit rates: 60-70% input token savings. Agent (~90 tok), Trade response (~60 tok), GM (~120 tok), Reflection (~150 tok) templates implemented per blueprint §2.
-- Why it matters: Cache hits drop total cost from ~$80 to ~$32. Difference between within-budget and over-budget.
-- Source: blueprint §2
-- Primary owner: M001/S03
-- Validation: M001/S03 — all 6 prompt modules implemented in src/prompts/; static system prefix confirmed (no round/agent/inventory in system messages); act=84 tok (≤108, within 20% of 90-tok target), respond=66 tok (≤72, within 20% of 60-tok target); 23/23 pytest pass including token budget assertions. Cache hit rate measurement requires real API calls (S04 gate).
+- Description: `src/prompts/rne_prompts.py` implements: system prompt (static, cache-friendly), neutral/social/strategic framing variants, identity disclosure injection (blind vs disclosed), condition-specific round instructions (A/B/C). Tolerant JSON parser handles fenced/partial responses.
+- Why it matters: Prompt quality determines behavioral measurement quality. Cache-friendliness controls cost at 3,360-session scale.
+- Source: SIMULATION_DESIGN.md §6
+- Primary owning slice: M001/S02
+- Supporting slices: none
+- Validation: unmapped
+- Notes: `json_utils.py` (tolerant parser) exists from Trade Island work. RNE-specific prompt functions need to be written.
 
-### R004 — Phase 0: Format Ablation + GM Sensitivity
+### R004 — CFIM Session Configuration (RNEConfig)
+- Class: core-infrastructure
+- Status: active
+- Description: `RNEConfig` Pydantic model with all Study 1 variables: `family_a`, `family_b`, `condition` (A/B/C), `disclosure` (blind/disclosed), `prompt_framing` (neutral/social/strategic), `rounds=35`, `decay_rate=0.10`, `perturbation_round=20`, `session_id`. Family fields validated against `RNE_FAMILIES` (7 families). `GameConfig.from_rne()` factory.
+- Why it matters: The config is the factorial design in code. Wrong fields = wrong experiments.
+- Source: SIMULATION_DESIGN.md §3.2
+- Primary owning slice: M001/S01 (T01)
+- Supporting slices: none
+- Validation: validated
+- Notes: `RNEConfig` fully implemented with `@field_validator` on family fields. `RNE_FAMILIES` frozenset exported. All 7 families validated in `test_rne.py`.
+
+### R005 — M1–M6 Metrics Computation
 - Class: research-phase
 - Status: active
-- Description: 80 format-test calls (20/model, verbose vs compact), decision rule at 90% JSON parse threshold, 10 GM-sensitivity games (Mistral GM vs Llama GM), cost ~$0.50. Outputs: confirmed prompt format per model, GM confound quantification.
-- Why it matters: If compact prompts fail on any model, must use verbose for that model. If GM confound is large, pairwise results need correction.
-- Source: blueprint §4 Phase 0
-- Primary owner: M001/S04
+- Description: Per-session computation of: M1 cooperation rate, M2 exploitation delta, M3 adaptation lag, M4 betrayal recovery, M5 minimum acceptable offer (Condition C), M6 identity sensitivity (|M1_disclosed − M1_blind|). Written to `summary.json`.
+- Why it matters: These are the pre-registered dependent variables. H1–H5 all operate on M1–M6.
+- Source: SIMULATION_DESIGN.md §4
+- Primary owning slice: M001/S01 (T02)
+- Supporting slices: none
 - Validation: unmapped
+- Notes: M1–M4 computed inside `RNERunner`. M5 requires Condition C sweep. M6 is cross-session (computed at analysis stage, not per-session).
 
-### R005 — Phase 1: 120 Monoculture Games
+### R006 — Phase 0 Calibration (240 sessions)
 - Class: research-phase
 - Status: active
-- Description: 30 games per model family (Llama, DeepSeek, Gemini, Mistral), 6 agents same family per game, 25 rounds each. ~8-10 calendar days at 15/day. Resource specialty assignments randomized and recorded.
-- Why it matters: Baseline behavioral signatures. Without monoculture data, pairwise comparisons have no reference point.
-- Source: blueprint §4 Phase 1
-- Primary owner: M002
+- Description: 4 core families (llama, deepseek, gemini, mistral) × 10 sessions × 3 conditions × 2 disclosure = 240 sessions. Verifies: behavioral signal exists, parse rates >90%, cost within budget, perturbation response detectable. Produces `data/phase0/calibration_report.md` with go/no-go for Study 1.
+- Why it matters: Catches design defects before committing to 3,360 sessions. If trade rates are 0% or parse fails >10%, the study design needs adjustment.
+- Source: SIMULATION_DESIGN.md §3 (Phase 0 note), §8 Q3
+- Primary owning slice: M001/S03
+- Supporting slices: none
 - Validation: unmapped
+- Notes: Depends on R002 (engine) and R003 (prompts) complete.
 
-### R006 — Phase 2: 150 Pairwise Games (6 Pairs × 25)
-- Class: research-phase
-- Status: active
-- Description: All 6 cross-family pairings (Llama×DeepSeek, Llama×Gemini, Llama×Mistral, DeepSeek×Gemini, DeepSeek×Mistral, Gemini×Mistral). 3v3 configuration with complementary resource specialties. 25 games per pair.
-- Why it matters: The primary research contribution. Pairwise heatmaps are the paper's signature figures.
-- Source: blueprint §4 Phase 2
-- Primary owner: M003/S01
-- Validation: unmapped
-
-### R007 — Phase 2B: Persona-vs-Architecture Experiment (20 games)
-- Class: research-phase
-- Status: active
-- Description: Identical prompts, different models vs identical models, different persona prompts. Permutation-based variance comparison on 5 metrics: VP, trade acceptance, Gini, exploitation index, cooperation tendency.
-- Why it matters: Provides causal evidence that architecture (not prompt) drives behavioral signatures. H4 tests this.
-- Source: blueprint §4 Phase 2B
-- Primary owner: M003/S02
-- Validation: unmapped
-
-### R008 — Phase 2C: Full-Mix + Temporal Validation (15 games)
-- Class: research-phase
-- Status: active
-- Description: 15 games with all 4 families mixed (novel condition), temporal validation runs to detect model drift between Phase 1 and Phase 2.
-- Why it matters: Temporal validation addresses Limitation #5 (API model instability). All runs timestamped; comparison detects drift.
-- Source: blueprint §4 Phase 2C
-- Primary owner: M003/S03
-- Validation: unmapped
-
-### R009 — Statistical Analysis Pipeline
-- Class: analysis
-- Status: active
-- Description: Pre-registered analysis: Kruskal-Wallis (H1), logistic mixed-effects (H2), one-sample t-test BH-corrected (H3), permutation variance comparison (H4). 4×4 pairwise heatmaps, behavioral drift detection (5-round windows), three-track classifier (behavior/language/meta-behavioral).
-- Why it matters: Stats without pre-registration = HARKing risk. Scripts must be committed to OSF before Phase 1.
-- Source: blueprint §4 (pre-registration), §5
-- Primary owner: M004/S01
-- Validation: unmapped
-
-### R010 — OSF Pre-Registration
-- Class: research-integrity
-- Status: active
-- Description: Create OSF account, register hypotheses H1-H4, commit analysis stub scripts before Phase 1 begins. Timestamp-locked.
-- Why it matters: Pre-registration is the credibility foundation. Without it, reviewers will suspect post-hoc hypothesis selection.
-- Source: blueprint §4 (pre-registration section)
-- Primary owner: M001/S05
-- Validation: unmapped
-
-### R011 — Structured JSON Logging + Data Pipeline
+### R007 — JSONL Schema + Data Directory (Study 1)
 - Class: data-management
 - Status: active
-- Description: Every game produces a structured JSONL file: per-round agent decisions, trade proposals/outcomes, VP deltas, inventory states, GM resolutions, reflection summaries. Data pipeline ingests into Polars dataframes for analysis.
-- Why it matters: 335 games × 25 rounds × 6 agents = ~50K data points. Manual data cleaning is not feasible.
-- Source: blueprint §6 (Concordia v2.0 JSON logging)
-- Primary owner: M001/S02 (schema), M002/S01 (validation), M004/S01 (pipeline)
-- Validation: M001/S02 — JSONL schema locked. Events: game_start, round_start, agent_action, gm_resolution, build, grain_consumption, reflection, round_end, game_end. round_end flat fields `game_id, model_family, round, agent_id, vp` confirmed by test_smoke.py assertions and live grep. 9 H2 fields confirmed in gm_resolution events. Polars pipeline ingestion not yet validated (M002/S01 scope).
+- Description: Each session writes to `data/study1/{session_id}/game.jsonl` (one event per line) + `summary.json` (M1–M4 + config fields) + `metadata.json` (full RNEConfig + wall_clock_seconds). JSONL events: `game_start`, `round_start`, `proposal`, `trade_result`, `decay`, `perturbation`, `round_end` (per agent), `parse_failure`, `game_end`. `game_end` always written via try/finally.
+- Why it matters: The JSONL is the audit trail and the analysis input. Schema must be locked before Phase 0 runs — analysis stubs are pre-registered against it.
+- Source: SIMULATION_DESIGN.md §9
+- Primary owning slice: M001/S01 (T02)
+- Supporting slices: M001/S02
+- Validation: unmapped
+- Notes: Directory structure defined. Events not yet emitted (T02 scope).
 
-### R012 — Paper + Open-Source Deliverables
+### R008 — run_rne.py CLI
+- Class: operability
+- Status: active
+- Description: `scripts/run_rne.py --family-a FAMILY --family-b FAMILY --condition A|B|C --disclosure blind|disclosed --framing neutral|social|strategic --games N [--mock]` runs N sessions and writes all outputs. `--mock` flag enables no-API testing.
+- Why it matters: The CLI is the interface to the engine for all 3,360 sessions. Manual invocation and batch scripts both use it.
+- Source: SIMULATION_DESIGN.md §9 (scripts/)
+- Primary owning slice: M001/S01 (T03)
+- Supporting slices: none
+- Validation: unmapped
+- Notes: T03 scope.
+
+### R009 — OSF Pre-Registration
+- Class: research-integrity
+- Status: active
+- Description: Formal OSF registration of H1–H5 submitted with analysis stubs committed before any Study 1 data collected. Registration URL in `data/metadata/osf_registration.json`.
+- Why it matters: Pre-registration is the credibility foundation — prevents HARKing accusations. Hard constraint: must complete before M002 starts.
+- Source: SIMULATION_DESIGN.md §5
+- Primary owning slice: M001/S04
+- Supporting slices: none
+- Validation: partial
+- Notes: `docs/osf_preregistration.md` and analysis stubs committed (D056). OSF formal submission (human action) still pending.
+
+### R010 — Study 1 Full CFIM Data Collection (3,360 sessions)
+- Class: research-phase
+- Status: active
+- Description: 28 unique pairs × 3 conditions × 2 disclosure × 3 framings × 20 sessions = 3,360 sessions. All written to `data/study1/`. Total cost ≤$47. Per-cell: 20 sessions minimum for valid statistics (detects Δ>8.1% cooperation rate at 80% power).
+- Why it matters: This is the primary dataset. The CFIM matrix is built from it.
+- Source: SIMULATION_DESIGN.md §3.5
+- Primary owning slice: M002
+- Supporting slices: none
+- Validation: unmapped
+
+### R011 — Study 2 Harbour Engine (Ecological Validity)
+- Class: research-phase
+- Status: active
+- Description: 6-agent Harbour game engine. Mono (4 families × 20 games) + mixed compositions designed from Study 1 findings. Tests whether bilateral CFIM patterns predict multi-agent VP variance.
+- Why it matters: H5 tests ecological validity. Without Study 2, the paper only has bilateral evidence.
+- Source: SIMULATION_DESIGN.md §3.6
+- Primary owning slice: M003/S01
+- Supporting slices: none
+- Validation: unmapped
+
+### R012 — CFIM Analysis Pipeline (H1–H5)
+- Class: analysis
+- Status: active
+- Description: Pre-registered implementations of H1 (Wilcoxon diagonal vs off-diagonal), H2 (LRT mixed-effects logistic), H3 (one-sample t + paired Wilcoxon on |M6|), H4 (Kruskal-Wallis M3 across pairs), H5 (OLS bilateral M1 → Study 2 VP variance). CFIM matrix construction and heatmap generation.
+- Why it matters: The analysis is the paper. Without valid stats, there is no contribution.
+- Source: SIMULATION_DESIGN.md §4–§5
+- Primary owning slice: M004/S01
+- Supporting slices: none
+- Validation: partial
+- Notes: Analysis stubs `h1_self_play_premium.py` through `h5_cfim_to_multiagent.py` committed (pre-registered). Full implementation is M004 scope.
+
+### R013 — Paper + Open-Source Deliverables
 - Class: output
 - Status: active
-- Description: NeurIPS 2026 workshop short paper + AAMAS 2027 full paper + arXiv preprint. Open-source: concordia-pairwise library, model-pairwise-benchmark tool, trade-island-dataset on Hugging Face.
-- Why it matters: Research impact. The open-source tools multiply the contribution beyond the paper.
-- Source: blueprint §11
-- Primary owner: M004/S02, M004/S03
+- Description: AAMAS 2027 full paper + NeurIPS 2026 workshop short paper + arXiv preprint. Open-source: RNE game environment (pip-installable), CFIM dataset on Hugging Face, analysis notebooks.
+- Why it matters: Research impact. The RNE environment as a benchmark is the second major contribution after the paper.
+- Source: SIMULATION_DESIGN.md §7
+- Primary owning slice: M004/S02-S03
+- Supporting slices: none
 - Validation: unmapped
 
 ---
 
 ## Deferred
 
-### R020 — GPT-4o / Claude Inclusion
+### R020 — Claude Haiku Inclusion
 - Class: extensibility
 - Status: deferred
-- Description: Add closed-source model families to the pairwise matrix.
-- Source: blueprint §7 Limitation #8
-- Notes: Budget and scope excluded closed-source. Future work.
+- Description: Add Claude 3.5 Haiku as an 8th CFIM family (would make 8×8 = 64 pairs).
+- Why it matters: Additional architectural diversity; Anthropic family representation.
+- Source: SIMULATION_DESIGN.md §3.5 (excluded with note)
+- Primary owning slice: none
+- Validation: unmapped
+- Notes: Excluded due to budget constraint ($0.031/session vs avg $0.008). Add if budget increases (e.g. conference travel reimbursement). Would require n=12 sessions/cell to stay within $80.
 
-### R021 — Larger Agent Groups (>6)
+### R021 — GPT-4o Full (Non-Mini)
 - Class: extensibility
 - Status: deferred
-- Description: Scale to 12 or 24 agents for macro-simulation dynamics.
-- Source: blueprint §7 Limitation #2
-- Notes: Computational experimental economics scale. Not v1 scope.
+- Description: Replace gpt4o-mini with full GPT-4o in the family pool.
+- Why it matters: Higher capability model; would differentiate OpenAI capability tier effects.
+- Source: SIMULATION_DESIGN.md §3.5
+- Primary owning slice: none
+- Validation: unmapped
+- Notes: $0.086/session — 17× cost of gpt4o-mini. Infeasible under $80 cap.
 
-### R022 — Real-Time Dashboard
-- Class: tooling
+### R022 — Real-Time Monitoring Dashboard
+- Class: operability
 - Status: deferred
-- Description: Live web dashboard showing game progress, cost burn, per-model stats.
-- Notes: Useful for long runs but not required. CLI logging is sufficient for v1.
+- Description: Live dashboard showing session progress, cost burn, per-cell completion counts, parse failure rates.
+- Why it matters: Useful for 3,360-session run monitoring.
+- Source: SIMULATION_DESIGN.md §D055
+- Primary owning slice: none
+- Validation: unmapped
+- Notes: `rich` library dashboard designed in D055. Deferred until Study 1 batch runs start (M002).
 
 ---
 
@@ -146,50 +190,62 @@ Research capability contract and coverage. Active = must complete. Deferred = po
 - Class: constraint
 - Status: out-of-scope
 - Description: No human player agents. All agents are LLM-controlled.
-- Notes: Defines the study as multi-LLM, not human-LLM comparison.
+- Why it matters: Defines this as a fully-automated LLM behavioral study, not a human-LLM comparison.
+- Source: study design
+- Primary owning slice: none
+- Validation: n/a
 
-### R031 — Non-Economic Game Variants
+### R031 — Non-RNE Primary Game Types
 - Class: constraint
 - Status: out-of-scope
-- Description: Only Trade Island (resource trading, VP victory). No prisoner's dilemma variants, auctions, or other game types.
-- Notes: Single domain = controlled comparison. Future work extends to other domains.
+- Description: Prisoner's dilemma, auctions, and other game types are not the primary experiment. RNE is the only Study 1 game.
+- Why it matters: Controlled single-domain comparison. Other games are future work.
+- Source: SIMULATION_DESIGN.md §3.1
+- Primary owning slice: none
+- Validation: n/a
+- Notes: Harbour (Study 2) is in-scope as an ecological validity check, not a standalone primary study.
 
-### R032 — Real-Time API (Streaming)
+### R032 — Concordia Integration
 - Class: constraint
 - Status: out-of-scope
-- Description: All LLM calls are synchronous request/response. No streaming needed for simulation calls.
-- Notes: Streaming adds complexity with no benefit for batch simulation.
+- Description: Concordia entity/component system is not used. Custom game loops call litellm.completion() directly.
+- Why it matters: Concordia's `sample_text(prompt: str)` interface is incompatible with per-provider chat kwargs (thinking={}, response_format={}). See D023.
+- Source: D023
+- Primary owning slice: none
+- Validation: n/a
 
 ---
 
-## Coverage Summary
-
-- **Active:** 12 requirements
-- **Validated:** 0 (full validation pending Phase 0 + Phase 1 completion)
-- **Partially validated:** 3 (R002, R003, R011 — R003 templates + token budgets proven; cache hit rate pending S04; R002/R011 accepted-trade path and pipeline pending)
-- **Deferred:** 3
-- **Out of scope:** 3
-- **Total:** 18
-
 ## Traceability
 
-| ID | Class | Status | Primary Owner | Validated |
+| ID | Class | Status | Primary Owner | Validation |
 |---|---|---|---|---|
-| R001 | core-infrastructure | active | M001/S01 | M001/S01 ✅ |
-| R002 | core-infrastructure | active | M001/S02 | M001/S02 partial — engine + schema ✅; accepted-trade path pending (D037) |
-| R003 | performance-optimization | active | M001/S03 | M001/S03 partial — templates + token budgets ✅; cache hit rate pending (S04) |
-| R004 | research-phase | active | M001/S04 | unmapped |
-| R005 | research-phase | active | M002 | unmapped |
-| R006 | research-phase | active | M003/S01 | unmapped |
-| R007 | research-phase | active | M003/S02 | unmapped |
-| R008 | research-phase | active | M003/S03 | unmapped |
-| R009 | analysis | active | M004/S01 | unmapped |
-| R010 | research-integrity | active | M001/S05 | unmapped |
-| R011 | data-management | active | M001/S02 | M001/S02 partial — schema locked ✅; Polars pipeline pending (M002/S01) |
-| R012 | output | active | M004/S02-S03 | unmapped |
-| R020 | extensibility | deferred | — | — |
-| R021 | extensibility | deferred | — | — |
-| R022 | tooling | deferred | — | — |
-| R030 | constraint | out-of-scope | — | — |
-| R031 | constraint | out-of-scope | — | — |
-| R032 | constraint | out-of-scope | — | — |
+| R001 | core-infrastructure | active | M001/S01 | **validated** — 7-family routing tested, registry sync asserted |
+| R002 | core-infrastructure | active | M001/S01 (T02) | unmapped — T02 next |
+| R003 | core-infrastructure | active | M001/S02 | unmapped |
+| R004 | core-infrastructure | active | M001/S01 (T01) | **validated** — RNEConfig + field_validator + 31 tests pass |
+| R005 | research-phase | active | M001/S01 (T02) | unmapped |
+| R006 | research-phase | active | M001/S03 | unmapped |
+| R007 | data-management | active | M001/S01 (T02) | unmapped |
+| R008 | operability | active | M001/S01 (T03) | unmapped |
+| R009 | research-integrity | active | M001/S04 | partial — stubs + doc committed; OSF submission pending |
+| R010 | research-phase | active | M002 | unmapped |
+| R011 | research-phase | active | M003/S01 | unmapped |
+| R012 | analysis | active | M004/S01 | partial — stubs committed; full implementation M004 |
+| R013 | output | active | M004/S02-S03 | unmapped |
+| R020 | extensibility | deferred | none | unmapped |
+| R021 | extensibility | deferred | none | unmapped |
+| R022 | operability | deferred | none | unmapped |
+| R030 | constraint | out-of-scope | none | n/a |
+| R031 | constraint | out-of-scope | none | n/a |
+| R032 | constraint | out-of-scope | none | n/a |
+
+## Coverage Summary
+
+- **Active:** 13 requirements
+- **Validated:** 2 (R001, R004)
+- **Partially validated:** 2 (R009, R012)
+- **Unmapped active:** 9 (R002, R003, R005–R008, R010, R011, R013)
+- **Deferred:** 3
+- **Out of scope:** 3
+- **Total:** 19

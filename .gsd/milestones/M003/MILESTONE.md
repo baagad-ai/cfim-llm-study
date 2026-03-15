@@ -1,67 +1,58 @@
-# M003: Phase 2 — Pairwise + Persona + Validation (185 Games)
+# M003: Study 2 Harbour + Final Analysis
 
 **Status:** ⬜ Queued
-**Depends on:** M002 complete + Phase 1 descriptive analysis done
-**Target:** 185 games total (150 pairwise + 20 persona + 15 validation)
-**Calendar estimate:** Weeks 6-8 (shifted by ~1 week from simulation repair sprint; 12-14 days)
-**Budget:** ~$12.55
-
-**Audit notes for Phase 2 design (from MASTER_AUDIT_2026-03-15):**
-- **Phase 2C temporal validation:** Must specify which monoculture games to rerun and what drift metric to use BEFORE data collection. Draft spec: rerun 5 games per family (20 games total) with identical config as Phase 1; compare Gini and trade acceptance rate distributions via KS test. Drift threshold: p < 0.05 = drift detected.
-- **H4 format confound:** Compact format is locked by D041–D044. Document explicitly in paper that format is held constant across families — otherwise H4 comparison (architecture vs persona) is confounded by framing. Add to limitations section.
-- **DeepSeek R1 behavioral split:** Document in Phase 2B analysis that DeepSeek's memory (R1) and actions (V3) come from different model modes. This is a within-family confound for H4.
+**Depends on:** M002 complete (full CFIM dataset assembled)
+**Budget:** ~$15 (Study 2 Harbour games)
+**Calendar estimate:** ~1.5 weeks after M002
 
 ## Goal
 
-Run the primary research contribution (pairwise games) plus the persona-vs-architecture experiment and temporal validation.
+Run Study 2 (Harbour 6-agent games) to test ecological validity of CFIM patterns. Build the complete CFIM matrix. Run all pre-registered hypothesis tests (H1–H5).
+
+## Success Criteria
+
+- Study 2: ≥80 Harbour games complete (4 mono × 20 + mixed compositions from Study 1 findings)
+- H1–H5 all tested and results recorded (null results are acceptable)
+- 7×7 CFIM heatmap matrix generated (M1 cooperation rate, M2 exploitation delta)
+- `data/cfim_matrix.json` — full CFIM matrix with M1–M4 per cell (mean ± CI)
 
 ## Definition of Done
 
-- [ ] All 6 pairwise pairs × 25 games complete (150 games)
-- [ ] 20 persona-vs-architecture games complete (Phase 2B)
-- [ ] 15 full-mix + temporal validation games complete (Phase 2C)
-- [ ] Pairwise datasets built (per-pair JSONL logs)
-- [ ] Exploitation index computed per game
-- [ ] Cooperation tendency score computed per game
-- [ ] Temporal validation: compare Phase 1 monoculture stats to Phase 2C monoculture stats (detect drift)
-- [ ] Cost ≤ $12.55
+- [ ] ≥80 Harbour games complete (Study 2)
+- [ ] H1 (Wilcoxon diagonal vs off-diagonal) — result recorded
+- [ ] H2 (LRT mixed-effects logistic) — result recorded
+- [ ] H3 (|M6| identity sensitivity) — result recorded
+- [ ] H4 (Kruskal-Wallis adaptation lag across pairs) — result recorded
+- [ ] H5 (OLS bilateral M1 → Study 2 VP variance) — result recorded
+- [ ] CFIM matrix exported as `data/cfim_matrix.json` + PNG heatmaps
+- [ ] Study 2 data in `data/study2/`
 
 ## Slices
 
-| Slice | Description | Games | Status |
-|---|---|---|---|
-| S01 | Pairwise Phase 2 (6 pairs × 25) | 150 | ⬜ planned |
-| S02 | Phase 2B: Persona-vs-Architecture (20 games) | 20 | ⬜ planned |
-| S03 | Phase 2C: Full-mix + Temporal Validation (15 games) | 15 | ⬜ planned |
-| S04 | Phase 2 intermediate analysis (heatmap previews) | — | ⬜ planned |
+| Slice | Description | Status |
+|---|---|---|
+| S01 | Harbour engine (Study 2) | ⬜ planned |
+| S02 | Study 2 mono + mixed games (≥80) | ⬜ planned |
+| S03 | H1–H5 statistical analysis | ⬜ planned |
+| S04 | CFIM matrix construction + heatmaps | ⬜ planned |
 
-## Pairwise Run Order (6 pairs)
+## Key Design Constraints (from SIMULATION_DESIGN.md §3.6)
 
-1. Llama × Mistral (cheapest combination) — validate 3v3 setup
-2. DeepSeek × Mistral
-3. Llama × DeepSeek
-4. Mistral × Gemini
-5. Llama × Gemini
-6. DeepSeek × Gemini (most expensive per game)
-
-## Phase 2B Design (Persona-vs-Architecture)
-
-- **Architecture condition (10 games):** Different model families, identical neutral prompts (no persona)
-- **Persona condition (10 games):** Same model family, different persona prompts (e.g., "cooperative trader" vs "aggressive hoarder")
-- Measure: variance on 5 metrics across conditions
-- H4 test: is architecture variance > persona variance on ≥3 of 5 metrics?
+- Mono condition: all 6 agents same family (4 families × 20 games = 80 games)
+- Mixed condition: compositions designed from Study 1 M1 findings (pair the highest-M1 with lowest-M1 families in 3v3 split)
+- H5 test: Study 2 VP variance ~ mean bilateral M1 from Study 1 for the specific pairs present (linear regression, R²>0.15, p<0.05)
 
 ## Data Organization
 
 ```
-data/phase2/
-  pairwise/
-    llama_deepseek/  (25 games)
-    llama_gemini/    (25 games)
-    llama_mistral/   (25 games)
-    deepseek_gemini/ (25 games)
-    deepseek_mistral/(25 games)
-    gemini_mistral/  (25 games)
-  phase2b_persona/   (20 games)
-  phase2c_validation/(15 games)
+data/
+  study2/
+    {game_id}/
+      game.jsonl
+      summary.json
+  cfim_matrix.json      ← M1–M4 per cell across 28 pairs × 3 conditions
+  figures/
+    cfim_heatmap_m1.png
+    cfim_heatmap_m2.png
+    adaptation_lag_matrix.png
 ```

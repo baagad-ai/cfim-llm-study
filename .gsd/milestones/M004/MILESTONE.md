@@ -1,71 +1,65 @@
-# M004: Analysis + Writing
+# M004: Paper + Open-Source Release
 
 **Status:** ⬜ Queued
-**Depends on:** M003 complete
-**Calendar estimate:** Weeks 8-13 (5-6 weeks)
+**Depends on:** M003 complete (H1–H5 results, CFIM matrix, heatmaps)
 **Budget:** ~$0 (local compute only)
+**Calendar estimate:** ~5 weeks after M003
 
 ## Goal
 
-Complete statistical analysis, generate all paper figures, write NeurIPS 2026 workshop short paper, prepare open-source deliverables.
+Write and submit the AAMAS 2027 paper and NeurIPS 2026 workshop short paper. Release the RNE environment and CFIM dataset as open-source.
+
+## Success Criteria
+
+- NeurIPS 2026 Foundation Models workshop submission (September 2026 deadline)
+- AAMAS 2027 full paper submission (October 2026 deadline)
+- arXiv preprint live
+- RNE environment pip-installable (`pip install rne-game`)
+- CFIM dataset on Hugging Face Datasets
+- All analysis notebooks reproducible from raw JSONL
 
 ## Definition of Done
 
-- [ ] All 4 pre-registered hypotheses tested (H1-H4)
-- [ ] 4×4 pairwise heatmaps generated (VP ratio, trade acceptance, exploitation index)
-- [ ] Three-track behavioral classifier trained and evaluated
-- [ ] Behavioral drift plots (5-round rolling windows, 8 plots total)
-- [ ] NeurIPS 2026 workshop short paper submitted
-- [ ] AAMAS 2027 full paper submitted
-- [ ] arXiv preprint live
-- [ ] concordia-pairwise library released (GitHub + pip)
-- [ ] model-pairwise-benchmark tool released
-- [ ] trade-island-dataset uploaded to Hugging Face
+- [ ] AAMAS 2027 full paper submitted (8 pages + refs, GAAI track)
+- [ ] NeurIPS 2026 workshop short paper submitted (4 pages)
+- [ ] arXiv preprint live with DOI
+- [ ] `rne-game` pip package released (MIT license)
+- [ ] `cfim-dataset` on Hugging Face (3,360+ session JSONL logs + summary CSVs)
+- [ ] Analysis notebooks reproducible: `jupyter nbconvert --execute` on all notebooks with no errors
 
 ## Slices
 
 | Slice | Description | Status |
 |---|---|---|
-| S01 | Full statistical analysis (H1-H4 + descriptives + classifier) | ⬜ planned |
-| S02 | Figures + visualizations (heatmaps, drift plots, bar charts) | ⬜ planned |
-| S03 | Paper writing (NeurIPS short + AAMAS full) | ⬜ planned |
-| S04 | Open-source release prep (concordia-pairwise + benchmark + dataset) | ⬜ planned |
+| S01 | Complete H1–H5 implementations + figures | ⬜ planned |
+| S02 | Paper writing (NeurIPS short) | ⬜ planned |
+| S03 | Paper expansion (AAMAS full) | ⬜ planned |
+| S04 | Open-source release (rne-game + dataset) | ⬜ planned |
 
-## Key Figures (Paper Signature)
+## Paper Positioning (SIMULATION_DESIGN.md §7)
 
-1. **4×4 pairwise heatmap matrix** — VP ratio per matchup (main contribution figure)
-2. **Trade acceptance heatmap** — cross-family acceptance rates
-3. **Exploitation index heatmap** — which families exploit which
-4. **Behavioral drift plots** — per-family 5-round rolling windows (4 models × monoculture + pairwise)
-5. **Architecture vs Persona variance comparison** — bar chart for H4
+| Related work | What they did | What we add |
+|---|---|---|
+| Akata et al. 2025 (NHB) | Cross-family PD games; aggregate heatmaps | Opponent-contingency analysis; identity disclosure; adaptation dynamics |
+| "AI in the Mirror" (2025) | Self vs. non-self disclosure in PGG | Cross-family labels; 7 families; 3 game conditions |
+| GAMA-Bench (2024) | Strategic reasoning performance | Behavioral adaptation and relational profiles |
+| NetworkGames (2025) | 16×16 personality dyadic matrix | Model families as natural groupings; safety implications |
+
+**Key differentiator:** We are the first paper to analyze whether a model's behavioral strategy changes as a function of *which opponent family* it faces. The CFIM is a reusable benchmark — every new model can be placed in the matrix.
 
 ## Open-Source Deliverables
 
-- `concordia-pairwise`: pip-installable library. LiteLLM + Concordia v2.0 + Trade Island. All dependencies version-pinned. MIT license.
-- `model-pairwise-benchmark`: `python benchmark.py --model-a llama-70b --model-b deepseek-chat --games 25`
-- `trade-island-dataset`: 335+ game JSONL logs on Hugging Face Datasets. Full schema documentation.
-- `analysis-notebooks/`: Reproducible Jupyter notebooks for all figures and tests.
-
-## Paper Positioning (from MASTER_AUDIT_2026-03-15)
-
-**Key differentiation from FAIRGAME/related work:**
-- FAIRGAME (Buscemi et al., 2025) and "More at Stake" (Buscemi et al., 2026): 2-player matrix games. Our contribution: 6-player, multi-issue, multi-round resource trading game with VP victory. Richer strategic space.
-- H4 (architecture vs persona variance) is the most publishable finding regardless of direction: architecture > prompt → contradicts framing-dominance literature; architecture < prompt → confirms framing dominance in economic settings. Either way publishable.
-- Null result contingency: if all families produce statistically identical behavior, publish as "evidence against model-family behavioral attribution" — this is a valid contribution.
-- Add explicit limitations: (a) compact English-only prompts may suppress cross-linguistic behavioral variance, (b) DeepSeek R1/V3 behavioral split, (c) temporal model instability (mitigated by Phase 2C but residual), (d) single economic game type.
-
-**Related work to add in writing (S03):**
-- FAIRGAME framework (Buscemi et al., 2025)
-- "More at Stake" (Buscemi et al., 2026)
-- "Understanding LLM Agent Behaviours via Game Theory" (Huynh et al., 2025)
+- `rne-game`: pip-installable RNE environment. `RNERunner`, `RNEConfig`, prompts, parser. MIT license.
+- `cfim-dataset`: All 3,360+ session JSONL logs + `summary.csv` on Hugging Face. Full schema documentation.
+- `analysis-notebooks/`: Reproducible Jupyter notebooks for H1–H5, CFIM matrix, all figures.
+- `cfim-benchmark`: One-command benchmarking: `cfim-run --family-a llama --family-b mistral --condition A --sessions 20`
 
 ## Writing Timeline
 
 | Week | Activity |
 |---|---|
-| 8 | Full statistical analysis (implement stubs from M001/S05) |
-| 9 | Figure generation + classifier training |
-| 10 | Paper writing (NeurIPS workshop version, 4-6 pages) |
-| 11 | Revision + peer feedback |
-| 12 | Submit NeurIPS workshop. Begin AAMAS full paper expansion. |
-| 13 | arXiv preprint. Open-source release. Blog post. |
+| 1 | Implement H1–H5 stubs into full analysis; generate all figures |
+| 2 | Write NeurIPS workshop short paper (4 pages) |
+| 3 | Revision + peer feedback |
+| 4 | Submit NeurIPS workshop. Begin AAMAS full paper expansion. |
+| 5 | AAMAS full paper. arXiv preprint. Open-source release. Blog post. |
