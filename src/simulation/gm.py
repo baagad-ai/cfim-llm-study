@@ -24,7 +24,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-from src.simulation.llm_router import call_llm
+from src.simulation.llm_router import call_llm_provider as call_llm
 from src.simulation.logger import GameLogger
 from src.prompts.gm_resolution import build_gm_messages, build_simple_gm_messages
 

@@ -13,7 +13,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 
-from src.simulation.llm_router import call_llm
+from src.simulation.llm_router import call_llm_provider as call_llm
 from src.prompts.agent_action import build_act_messages
 from src.prompts.trade_response import build_respond_messages
 from src.prompts.reflection import build_reflect_messages

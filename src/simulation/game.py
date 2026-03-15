@@ -72,19 +72,24 @@ class GameRunner:
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # ------------------------------------------------------------------
-        # Cost accumulator: wrap call_llm to capture per-call cost
+        # Cost accumulator: wrap call_llm_provider to capture per-call cost.
+        # agent.py and gm.py import call_llm_provider aliased as call_llm;
+        # the local binding in those modules is named "call_llm" so we patch
+        # that name in their module dicts.  We patch call_llm_provider in the
+        # router module too for any future direct callers.
         # ------------------------------------------------------------------
         _cost_bucket: list[float] = []
-        _original_call_llm = _llm_router_mod.call_llm
+        _original_call_llm = _llm_router_mod.call_llm_provider
 
         def _tracking_call_llm(*args, **kwargs):
             content, cost = _original_call_llm(*args, **kwargs)
             _cost_bucket.append(cost)
             return content, cost
 
-        _llm_router_mod.call_llm = _tracking_call_llm  # type: ignore[assignment]
+        _llm_router_mod.call_llm_provider = _tracking_call_llm  # type: ignore[assignment]
 
-        # Also patch in the agent and gm modules since they import call_llm directly
+        # Also patch in the agent and gm modules since they import call_llm_provider
+        # aliased as "call_llm" — patch that name in their module namespace.
         import src.simulation.agent as _agent_mod
         import src.simulation.gm as _gm_mod
         _agent_mod.call_llm = _tracking_call_llm  # type: ignore[assignment]
@@ -98,8 +103,8 @@ class GameRunner:
                 mock_response=mock_response,
             )
         finally:
-            # Restore original call_llm in all modules
-            _llm_router_mod.call_llm = _original_call_llm
+            # Restore originals in all modules
+            _llm_router_mod.call_llm_provider = _original_call_llm
             _agent_mod.call_llm = _original_call_llm
             _gm_mod.call_llm = _original_call_llm
 

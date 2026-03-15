@@ -2,11 +2,15 @@
 
 This is the schema contract that every other S02 module references.
 Lock field names here; do not drift downstream.
+
+RNEConfig — configuration for Study 1 (Repeated Negotiated Exchange).
+Separate from Trade Island GameConfig; only fields defined in §3.2 are here.
 """
 
 from __future__ import annotations
 
-from typing import Any
+import uuid
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -194,3 +198,66 @@ class GameConfig(BaseModel):
             gm_model=_DEFAULT_GM_MODEL,
             agent_models=agents,
         )
+
+    @classmethod
+    def from_rne(cls, rne: "RNEConfig") -> "GameConfig":
+        """Build a GameConfig from an RNEConfig for a 2-agent bilateral game.
+
+        Creates exactly 2 agents: a0 uses family_a, a1 uses family_b.
+        Rounds are set from rne.rounds (default 35 for Study 1).
+
+        Args:
+            rne: Fully-specified RNEConfig instance.
+
+        Returns:
+            GameConfig wired for the RNE 2-agent bilateral game.
+        """
+        agents = [
+            _make_agent_entry("a0", rne.family_a),
+            _make_agent_entry("a1", rne.family_b),
+        ]
+        return cls(
+            config_name=f"rne-{rne.family_a}-{rne.family_b}-{rne.condition}",
+            num_agents=2,
+            num_rounds=rne.rounds,
+            gm_model=_DEFAULT_GM_MODEL,
+            agent_models=agents,
+        )
+
+
+# ---------------------------------------------------------------------------
+# RNEConfig — Study 1: Repeated Negotiated Exchange
+# ---------------------------------------------------------------------------
+
+_RNE_FAMILIES = {*_MODEL_REGISTRY.keys()}  # valid family names
+
+
+class RNEConfig(BaseModel):
+    """Configuration for one Study 1 (RNE) session.
+
+    Fields are locked; downstream engine, logger, and analysis all depend
+    on exact field names.  Do not rename without coordinating S01 changes.
+
+    Attributes:
+        family_a:           Model family for agent a0 (e.g. "mistral", "llama").
+        family_b:           Model family for agent a1.
+        condition:          Experimental condition: A, B, or C.
+        disclosure:         Identity disclosure: "blind" or "disclosed".
+        prompt_framing:     Framing cue: "neutral", "social", or "strategic".
+        rounds:             Number of negotiation rounds (default 35).
+        decay_rate:         Resource decay rate per round (default 0.10).
+        perturbation_round: Round at which the resource shock fires (default 20).
+        session_id:         8-char hex ID auto-generated from UUID4 (first 8 hex chars).
+    """
+
+    family_a: str
+    family_b: str
+    condition: Literal["A", "B", "C"]
+    disclosure: Literal["blind", "disclosed"] = "blind"
+    prompt_framing: Literal["neutral", "social", "strategic"] = "neutral"
+    rounds: int = 35
+    decay_rate: float = 0.10
+    perturbation_round: int = 20
+    session_id: str = Field(default_factory=lambda: uuid.uuid4().hex[:8])
+
+    model_config = {"frozen": False}  # allow post-init mutation if needed
