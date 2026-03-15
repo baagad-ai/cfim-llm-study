@@ -250,9 +250,11 @@ class TestProviderKwargs:
         required = {"llama", "deepseek", "gemini", "mistral", "gpt4o-mini", "qwen", "phi4"}
         assert required == set(PROVIDER_KWARGS.keys())
 
-    def test_gemini_no_response_format(self):
+    def test_gemini_has_response_format(self):
+        """D047 supersedes D021: Gemini now uses json_object (thinking=disabled makes it safe)."""
         from src.simulation.llm_router import PROVIDER_KWARGS
-        assert "response_format" not in PROVIDER_KWARGS["gemini"]
+        assert "response_format" in PROVIDER_KWARGS["gemini"]
+        assert PROVIDER_KWARGS["gemini"]["response_format"] == {"type": "json_object"}
 
     def test_gemini_thinking_disabled(self):
         from src.simulation.llm_router import PROVIDER_KWARGS

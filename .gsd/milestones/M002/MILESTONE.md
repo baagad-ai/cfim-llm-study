@@ -1,9 +1,13 @@
 # M002: Phase 1 — Monoculture (120 Games)
 
 **Status:** ⬜ Queued
-**Depends on:** M001 complete + OSF pre-registered
+**Depends on:** M001 complete + OSF pre-registered + all of the following verified:
+  - Simulation produces VP in 3–9 range (not −17 to −20 starvation floor)
+  - Trade acceptance rate >10% confirmed in Phase 0 batch
+  - R013 and R014 requirements validated (mechanics + data quality)
+  - `requirements-lock.txt` committed (reproducibility baseline)
 **Target:** 120 games, 4 families × 30 games
-**Calendar estimate:** Weeks 3-4 (8-10 days at 15/day)
+**Calendar estimate:** Weeks 4-5 (shifted by ~1 week from simulation repair sprint; 8-10 days at 15/day)
 **Budget:** ~$6.00
 
 ## Goal
@@ -19,6 +23,10 @@ Establish baseline behavioral signatures for each model family in monoculture (s
 - [ ] Polars dataframe built from all 120 game logs (Phase 1 dataset)
 - [ ] Phase 1 descriptive statistics computed (per-family: Gini mean, VP mean, trade acceptance rate mean)
 - [ ] No model produces degenerate behavior (all-wait, all-hoard) in >20% of games
+- [ ] Resource specialty assignments logged as covariates for all 120 games (R013 requirement — was absent in pre-repair games)
+- [ ] `build_failed` events present in all game logs with reason field (R014 requirement)
+- [ ] `inventory` dict present in all `round_end` events (R014 requirement)
+- [ ] Pairing labels correct (phase0 and mono config validation)
 
 ## Slices
 

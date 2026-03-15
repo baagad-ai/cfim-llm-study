@@ -87,7 +87,11 @@ class TestTokenBudgets:
     _BUILDINGS = _STANDARD_BUILDINGS
 
     def test_act_within_budget(self):
-        """build_act_messages total chars//4 must be ≤ 108."""
+        """build_act_messages total chars//4 must be ≤ 160.
+        
+        Budget increased after S04: grain urgency injection and grain visibility
+        add ~30 tok vs original S03 budget of 108. New limit: 160.
+        """
         msgs = build_act_messages(
             agent_id="a0",
             model_family="mistral",
@@ -100,10 +104,15 @@ class TestTokenBudgets:
             buildings_config=self._BUILDINGS,
         )
         tok = sum(len(m["content"]) for m in msgs) // 4
-        assert tok <= 108, f"act prompt too large: {tok} tok (budget ≤108)"
+        assert tok <= 160, f"act prompt too large: {tok} tok (budget ≤160)"
 
     def test_respond_within_budget(self):
-        """build_respond_messages total chars//4 must be ≤ 72."""
+        """build_respond_messages total chars//4 must be ≤ 160.
+        
+        Budget increased after S04 CF4 fix: system message is now dynamic,
+        injecting grain_rounds_left and survival urgency + building context.
+        New limit: 160 (was 72).
+        """
         proposal = {"proposer": "a1", "give": {"wood": 1}, "want": {"grain": 1}}
         msgs = build_respond_messages(
             agent_id="a0",
@@ -113,7 +122,7 @@ class TestTokenBudgets:
             buildings_config=self._BUILDINGS,
         )
         tok = sum(len(m["content"]) for m in msgs) // 4
-        assert tok <= 72, f"respond prompt too large: {tok} tok (budget ≤72)"
+        assert tok <= 160, f"respond prompt too large: {tok} tok (budget ≤160)"
 
 
 # ---------------------------------------------------------------------------
@@ -189,11 +198,18 @@ class TestMonoConfigs:
 class TestGetCompletionKwargs:
     """get_completion_kwargs() must return correct provider-level kwargs."""
 
-    def test_gemini_no_response_format(self):
-        """Gemini does not accept response_format — must not be in kwargs."""
+    def test_gemini_has_response_format(self):
+        """Gemini now uses response_format=json_object (D021 superseded by thinking=disabled).
+
+        With thinking=disabled, json_object mode no longer causes content=None.
+        Verified 5/5 non-empty responses on gemini-2.5-flash (2026-03-15).
+        """
         kwargs = get_completion_kwargs("gemini")
-        assert "response_format" not in kwargs, (
-            f"gemini kwargs should not contain response_format, got: {kwargs}"
+        assert "response_format" in kwargs, (
+            f"gemini kwargs must contain response_format (D021 superseded), got: {kwargs}"
+        )
+        assert kwargs["response_format"] == {"type": "json_object"}, (
+            f"gemini response_format must be json_object, got: {kwargs['response_format']}"
         )
 
     def test_mistral_has_response_format(self):

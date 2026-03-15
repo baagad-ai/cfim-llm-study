@@ -48,6 +48,24 @@ def main() -> int:
         default=1,
         help="Number of sequential games to run.",
     )
+    parser.add_argument(
+        "--resume",
+        type=str,
+        default=None,
+        metavar="GAME_ID",
+        help="Resume an interrupted game from its latest checkpoint.",
+    )
+    parser.add_argument(
+        "--gm-model",
+        type=str,
+        default=None,
+        metavar="GM_MODEL_STRING",
+        help=(
+            "Override the GM model string for this run. "
+            "E.g. 'groq/llama-3.3-70b-versatile' for Llama-GM sensitivity games. "
+            "Default: uses the config's built-in gm_model."
+        ),
+    )
     args = parser.parse_args()
 
     # ------------------------------------------------------------------
@@ -75,10 +93,34 @@ def main() -> int:
     print(f"Config: {config_name} | Games: {args.games}")
     print("-" * 60)
 
+    # ------------------------------------------------------------------
+    # Resume path: resume a single game from checkpoint
+    # ------------------------------------------------------------------
+    if args.resume:
+        print(f"Resuming game: {args.resume}")
+        print("-" * 60)
+        try:
+            config = GameConfig.from_name(config_name)
+            runner = GameRunner(config)
+            summary = runner.resume_game(args.resume)
+            print(
+                f"[Resume] Done — "
+                f"game_id={summary['game_id']} "
+                f"cost=${summary['total_cost_usd']:.4f} "
+                f"rounds={summary['rounds_played']}"
+            )
+        except Exception:
+            print("[Resume] FAILED — traceback below:")
+            traceback.print_exc()
+            return 1
+        return 0
+
     for game_num in range(1, args.games + 1):
         print(f"[Game {game_num}/{args.games}] Starting...")
         try:
             config = GameConfig.from_name(config_name)
+            if args.gm_model:
+                config = config.model_copy(update={"gm_model": args.gm_model})
             runner = GameRunner(config)
             summary = runner.run_game()
             print(

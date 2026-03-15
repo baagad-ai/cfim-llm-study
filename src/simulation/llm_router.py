@@ -74,7 +74,9 @@ PROVIDER_KWARGS: dict[str, dict] = {
     "gemini": {
         "thinking": {"type": "disabled", "budget_tokens": 0},
         "max_tokens": 200,
-        # No response_format per D021 — Gemini json_object causes empty content
+        "response_format": {"type": "json_object"},
+        # D021 superseded by D047: with thinking=disabled, json_object mode works
+        # reliably — verified 5/5 non-empty, 2 full 25-round games with 0 parse failures.
     },
     "mistral": {
         "response_format": {"type": "json_object"},
@@ -108,6 +110,8 @@ _LEGACY_PROVIDER_KWARGS: dict[str, dict] = {
     "gemini": {
         "thinking": {"type": "disabled", "budget_tokens": 0},
         "max_tokens": 200,
+        "response_format": {"type": "json_object"},
+        # D047: json_object re-enabled for gemini (D021 superseded)
     },
     "mistral": {
         "response_format": {"type": "json_object"},

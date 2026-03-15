@@ -110,36 +110,135 @@ class GameRunner:
 
         return result
 
+    def resume_game(
+        self,
+        game_id: str,
+        mock_response: str | None = None,
+    ) -> dict[str, Any]:
+        """Resume an interrupted game from its latest checkpoint.
+
+        Finds the highest-numbered checkpoint file in data/raw/{game_id}/,
+        reconstructs agent state, and continues from start_round = checkpoint_round + 1.
+
+        The game.jsonl is opened in append mode by GameLogger, so completed rounds
+        remain in the log and new rounds are appended — no duplicates.
+
+        A second game_end event is written at the end of the resumed run (D042):
+        this is expected — filter on the last game_end per game_id for analysis.
+
+        Args:
+            game_id:       The game directory to resume (e.g. "1e8788dd").
+            mock_response: If not None, passed through to all LLM calls.
+
+        Returns:
+            Same structure as run_game(): {game_id, total_cost_usd, rounds_played}
+
+        Raises:
+            FileNotFoundError: If no checkpoint files exist for the given game_id.
+        """
+        output_dir = Path(f"data/raw/{game_id}")
+
+        # Find highest-numbered checkpoint
+        checkpoints = sorted(output_dir.glob("checkpoint_r*.json"))
+        if not checkpoints:
+            raise FileNotFoundError(
+                f"No checkpoint files found in {output_dir}. Cannot resume game '{game_id}'."
+            )
+        latest_checkpoint = checkpoints[-1]
+
+        with latest_checkpoint.open() as f:
+            cp = json.load(f)
+
+        start_round = cp["round"] + 1
+        agents_data = cp["agents"]
+
+        # ------------------------------------------------------------------
+        # Cost accumulator (same pattern as run_game)
+        # ------------------------------------------------------------------
+        _cost_bucket: list[float] = []
+        _original_call_llm = _llm_router_mod.call_llm_provider
+
+        def _tracking_call_llm(*args, **kwargs):
+            content, cost = _original_call_llm(*args, **kwargs)
+            _cost_bucket.append(cost)
+            return content, cost
+
+        _llm_router_mod.call_llm_provider = _tracking_call_llm  # type: ignore[assignment]
+
+        import src.simulation.agent as _agent_mod
+        import src.simulation.gm as _gm_mod
+        _agent_mod.call_llm = _tracking_call_llm  # type: ignore[assignment]
+        _gm_mod.call_llm = _tracking_call_llm  # type: ignore[assignment]
+
+        try:
+            result = self._run(
+                game_id=game_id,
+                output_dir=output_dir,
+                cost_bucket=_cost_bucket,
+                mock_response=mock_response,
+                start_round=start_round,
+                agents_data=agents_data,
+            )
+        finally:
+            _llm_router_mod.call_llm_provider = _original_call_llm
+            _agent_mod.call_llm = _original_call_llm
+            _gm_mod.call_llm = _original_call_llm
+
+        return result
+
     def _run(
         self,
         game_id: str,
         output_dir: Path,
         cost_bucket: list[float],
         mock_response: str | None,
+        start_round: int = 1,
+        agents_data: list[dict] | None = None,
     ) -> dict[str, Any]:
-        """Inner game loop. Called by run_game() with cost tracking already active."""
+        """Inner game loop. Called by run_game() and resume_game() with cost tracking active.
+
+        Args:
+            start_round:  Round number to begin from (1 for fresh game, N+1 for resume).
+            agents_data:  Pre-loaded agent state dicts from a checkpoint (None for fresh game).
+        """
         config = self.config
 
         # ------------------------------------------------------------------
-        # Initialise agents
+        # Initialise agents — from checkpoint state if resuming, fresh otherwise
         # ------------------------------------------------------------------
         agents: list[Agent] = []
         model_assignments: dict[str, str] = {}
 
-        for entry in config.agent_models:
-            # Provider is the leading component of the model string, e.g.
-            # "mistral/mistral-small-2506" → provider = "mistral"
-            provider = entry["model_string"].split("/")[0]
-            agent = Agent(
-                agent_id=entry["agent_id"],
-                model_family=entry["model_family"],
-                model_string=entry["model_string"],
-                provider=provider,
-                inventory=dict(_STARTING_INVENTORY),
-                vp=0,
-            )
-            agents.append(agent)
-            model_assignments[entry["agent_id"]] = entry["model_family"]
+        if agents_data is not None:
+            # Resume path: reconstruct agents from checkpoint
+            for ad in agents_data:
+                provider = ad["model_string"].split("/")[0]
+                agent = Agent(
+                    agent_id=ad["agent_id"],
+                    model_family=ad["model_family"],
+                    model_string=ad["model_string"],
+                    provider=provider,
+                    inventory=dict(ad["inventory"]),
+                    vp=ad["vp"],
+                )
+                agent.buildings_built = ad.get("buildings_built", [])
+                agent.memory = ad.get("memory", [])
+                agents.append(agent)
+                model_assignments[ad["agent_id"]] = ad["model_family"]
+        else:
+            # Fresh game path
+            for entry in config.agent_models:
+                provider = entry["model_string"].split("/")[0]
+                agent = Agent(
+                    agent_id=entry["agent_id"],
+                    model_family=entry["model_family"],
+                    model_string=entry["model_string"],
+                    provider=provider,
+                    inventory=dict(_STARTING_INVENTORY),
+                    vp=0,
+                )
+                agents.append(agent)
+                model_assignments[entry["agent_id"]] = entry["model_family"]
 
         agent_map: dict[str, Agent] = {a.agent_id: a for a in agents}
 
@@ -152,18 +251,19 @@ class GameRunner:
         # Seed value for determinism metadata (not used for RNG here)
         seed = int(game_id, 16) % (2**32)
 
-        # ---- game_start ---------------------------------------------------
-        logger.log(
-            "game_start",
-            config_name=config.config_name,
-            model_assignments=model_assignments,
-            seed=seed,
-        )
+        # ---- game_start (only on fresh runs) ---------------------------------------------------
+        if start_round == 1:
+            logger.log(
+                "game_start",
+                config_name=config.config_name,
+                model_assignments=model_assignments,
+                seed=seed,
+            )
 
         # ------------------------------------------------------------------
         # Round loop
         # ------------------------------------------------------------------
-        for round_num in range(1, config.num_rounds + 1):
+        for round_num in range(start_round, config.num_rounds + 1):
             logger.log("round_start", round=round_num)
 
             game_state = _build_game_state(round_num, agents, config)
@@ -366,13 +466,14 @@ class GameRunner:
         final_vp = {a.agent_id: a.vp for a in agents}
         total_cost_usd: float = sum(cost_bucket)
 
+        rounds_played = config.num_rounds - start_round + 1
         logger.log(
             "game_end",
             config_name=config.config_name,
             winner=winner_agent.agent_id,
             winner_model=winner_agent.model_family,
             final_vp=final_vp,
-            rounds_played=25,
+            rounds_played=rounds_played,
             total_cost_usd=total_cost_usd,
         )
 
@@ -381,7 +482,7 @@ class GameRunner:
         return {
             "game_id": game_id,
             "total_cost_usd": total_cost_usd,
-            "rounds_played": 25,
+            "rounds_played": rounds_played,
         }
 
 

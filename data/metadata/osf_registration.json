@@ -1,0 +1,9 @@
+{
+  "osf_project_url": null,
+  "osf_registration_url": null,
+  "registration_id": null,
+  "registered_at": null,
+  "github_commit": null,
+  "_status": "PENDING_HUMAN_SUBMISSION",
+  "_instructions": "Human action required: Go to osf.io → create account → new project titled 'Cross-Family Interaction Matrix: Opponent-Contingent Behavioral Profiles in LLM Agents' → set visibility to public → upload docs/osf_preregistration.md → go to Registrations tab → New registration → template: Open-Ended Registration → upload doc → link GitHub repo → Submit registration. Then update this file with the project URL, registration URL, and registration ID."
+}

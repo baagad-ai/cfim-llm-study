@@ -46,6 +46,19 @@ Complete statistical analysis, generate all paper figures, write NeurIPS 2026 wo
 - `trade-island-dataset`: 335+ game JSONL logs on Hugging Face Datasets. Full schema documentation.
 - `analysis-notebooks/`: Reproducible Jupyter notebooks for all figures and tests.
 
+## Paper Positioning (from MASTER_AUDIT_2026-03-15)
+
+**Key differentiation from FAIRGAME/related work:**
+- FAIRGAME (Buscemi et al., 2025) and "More at Stake" (Buscemi et al., 2026): 2-player matrix games. Our contribution: 6-player, multi-issue, multi-round resource trading game with VP victory. Richer strategic space.
+- H4 (architecture vs persona variance) is the most publishable finding regardless of direction: architecture > prompt → contradicts framing-dominance literature; architecture < prompt → confirms framing dominance in economic settings. Either way publishable.
+- Null result contingency: if all families produce statistically identical behavior, publish as "evidence against model-family behavioral attribution" — this is a valid contribution.
+- Add explicit limitations: (a) compact English-only prompts may suppress cross-linguistic behavioral variance, (b) DeepSeek R1/V3 behavioral split, (c) temporal model instability (mitigated by Phase 2C but residual), (d) single economic game type.
+
+**Related work to add in writing (S03):**
+- FAIRGAME framework (Buscemi et al., 2025)
+- "More at Stake" (Buscemi et al., 2026)
+- "Understanding LLM Agent Behaviours via Game Theory" (Huynh et al., 2025)
+
 ## Writing Timeline
 
 | Week | Activity |

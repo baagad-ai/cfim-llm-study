@@ -7,9 +7,11 @@
 ## Success Criteria
 
 - `python scripts/run_game.py --config mistral-mono --games 1` completes 25 rounds, writes valid JSONL, costs ≤$0.02
+- Simulation produces VP in 3–9 range (not −17 to −20) with trade acceptance >15% — verified with v2 engine mechanics
 - `python scripts/run_game.py --config phase0 --games 30` completes all 30 calibration games, total cost $0.00–$1.50
 - All 4 model families (Llama, DeepSeek, Gemini, Mistral) participate in a single pairwise game; per-agent LLM routing verified by inspecting JSONL `model` fields
 - Crash-resume tested: kill mid-game, resume from checkpoint, correct round continuation with no duplicate JSONL events
+- GM confound quantified with ≥10 Llama-GM sensitivity games (upgraded from 5 per audit recommendation)
 - OSF pre-registration confirmation URL recorded in `data/metadata/osf_registration.json`
 - `requirements-lock.txt` committed with all exact pinned versions
 
@@ -45,7 +47,7 @@
 
 This milestone is complete only when all are true:
 
-- S01 through S05 all have `[x]` in their checklist
+- S01 through S07 all have `[x]` in their checklist
 - `python scripts/run_game.py --config mistral-mono --games 1` passes acceptance criteria (25 rounds, valid JSONL, ≤$0.02)
 - `python scripts/run_game.py --config phase0 --games 30` completes, total cost ≤$1.50
 - All 4 providers route correctly in a single pairwise game (verified via JSONL `model` field)
@@ -69,19 +71,30 @@ This milestone is complete only when all are true:
 ## Slices
 
 - [x] **S01: LiteLLM + Environment Setup** `risk:high` `depends:[]`
-  > After this: All 4 providers (Groq, OpenRouter/DeepSeek, Google, Mistral) return valid completions; per-provider call signatures and workarounds confirmed and documented in DECISIONS.md D018–D022. ✅ COMPLETE
+  > ✅ COMPLETE. All 4 providers verified, API keys configured, cost tracking confirmed.
 
 - [x] **S02: Trade Island Engine** `risk:high` `depends:[S01]`
-  > After this: `python scripts/run_game.py --config mistral-mono --games 1` runs a complete 25-round game, writes valid JSONL to `data/raw/{game_id}/game.jsonl`, saves per-round checkpoints, and costs ≤$0.02 — verified by inspecting the log file directly. ✅ COMPLETE
+  > ✅ COMPLETE. 25-round custom game loop, JSONL logging, checkpoints, double-spend guard verified.
 
 - [x] **S03: Prompt Templates + Tolerant Parser** `risk:medium` `depends:[S02]`
-  > After this: all 6 prompt functions (agent_action, trade_response, gm_resolution, building_decision, reflection, json_utils) are implemented; `pytest tests/test_prompts.py` passes all edge-case parse tests; token counts are within 20% of blueprint targets; `respond_to_trade` template is designed to produce measurable acceptance rates (addressing D037 — 0 accepted trades in Mistral-mono run); `GameConfig.from_name('phase0')` updated from mistral-mono placeholder to real 4-family mix (prerequisite for S04); the game engine uses these templates for all subsequent runs. ✅ COMPLETE
+  > ✅ COMPLETE. All 6 prompt modules, tolerant parser, 23/23 tests pass, phase0 config updated.
 
-- [ ] **S04: Phase 0 Calibration (30 games)** `risk:medium` `depends:[S02,S03]`
-  > After this: 30 calibration games are complete with valid JSONL logs; format decision (compact vs verbose) is locked per model in DECISIONS.md; GM confound is quantified; trade acceptance rate >0 confirmed in at least one calibration game (retiring D037); Mistral cost tracking verified (or alternative extraction path documented — `response_cost=None` issue from S02); crash-resume tested (kill mid-game, resume, no duplicate JSONL events); `data/phase0/PHASE0_REPORT.md` contains a Go/No-Go recommendation for Phase 1; total cost ≤$1.50.
+- [~] **S04: Phase 0 Calibration (partial)** `risk:high` `depends:[S02,S03]`
+  > ✅ T01 (cost tracking, crash-resume), ✅ T02 (format ablation, D041–D046 locked).
+  > T03-FIX SUPERSEDED by S05 full rebuild. Format decisions (D041–D046) and crash-resume infrastructure preserved.
+  > T05 (30-game run) and T06 (report) blocked until S05 validation complete.
 
-- [ ] **S05: OSF Pre-Registration** `risk:low` `depends:[S02]`
-  > After this: OSF formal registration is submitted (timestamp-locked), registration URL is recorded in `data/metadata/osf_registration.json`, GitHub repo is public and linked from OSF, and Phase 1 (M002) is unblocked on the scientific integrity constraint.
+- [ ] **S05: Simulation Engine v2 — Full Rebuild** `risk:high` `depends:[S02,S03,S04/T01,S04/T02]`
+  > Rebuild from first principles: broadcast+match agent-initiated trade, resource degradation (spoilage + destitution), RULES_BLOCK shared prompt rules, structured memory + reflection, RoundMetrics observability.
+  > After this: VP in 3–9 range, trade acceptance >15%, broadcast/spoilage/round_metrics events in JSONL, `pytest` 0 failures. Gates 30-game Phase 0 run and OSF registration.
+
+- [ ] **S06: 30-Game Phase 0 Run + Report** `risk:medium` `depends:[S05]`
+  > Run 30 phase0 calibration games. Verify >10% trade acceptance, 4-provider routing, ≥10 Llama-GM sensitivity games. Write PHASE0_REPORT.md with Go/No-Go decision for Phase 1.
+  > Previously T05+T06 in S04. Renumbered after S05 was inserted.
+
+- [ ] **S07: OSF Pre-Registration** `risk:low` `depends:[S02]`
+  > Submit formal OSF pre-registration before any Phase 1 games begin. Lock analysis stubs, record registration URL. Previously S05.
+  > Note: Can run in parallel with S06 — hard constraint is submission before M002 starts.
 
 ---
 
@@ -157,6 +170,6 @@ Consumes:
 
 **Why D023 is already settled:** The existing S02 sketch still mentions a "Concordia marketplace evaluation decision gate." This is closed — D023 is recorded in DECISIONS.md. S02 goes directly to building the custom loop with no re-evaluation. The sketch's T02 task (marketplace evaluation) is eliminated.
 
-**S05 parallelism note:** OSF registration can technically start once the JSONL schema is locked (S02). In practice, creating the OSF account and writing `docs/osf_preregistration.md` can happen during S03/S04. The hard constraint is that the formal OSF registration must be **submitted** before any Phase 1 game data exists — i.e., before M002 starts. S05 is last in sequence to match execution order but does not require S04 to complete.
+**S07 parallelism note:** OSF registration (S07) can technically start once the JSONL schema is locked (S02). In practice, creating the OSF account and writing `docs/osf_preregistration.md` can happen during S05/S06. The hard constraint is that the formal OSF registration must be **submitted** before any Phase 1 game data exists — i.e., before M002 starts. S07 is last in sequence to match execution order but does not require S06 to complete. S06 (30-game run) and S07 (OSF registration) can run in parallel.
 
 **DeepSeek R1 cost revisit:** D024 estimated ~$0.45 extra for Phase 0. The research note in M001-RESEARCH.md flags this could approach $8 if most Phase 0 games are DeepSeek-mono. Phase 0 has only 5 DeepSeek calibration games + format ablation calls (no reflections). Actual R1 risk in Phase 0 is low (~$0.075 worst case). Phase 1 (M002) is the real R1 cost exposure.

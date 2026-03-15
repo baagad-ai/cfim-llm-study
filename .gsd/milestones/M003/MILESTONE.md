@@ -3,8 +3,13 @@
 **Status:** ⬜ Queued
 **Depends on:** M002 complete + Phase 1 descriptive analysis done
 **Target:** 185 games total (150 pairwise + 20 persona + 15 validation)
-**Calendar estimate:** Weeks 5-7 (12-14 days)
+**Calendar estimate:** Weeks 6-8 (shifted by ~1 week from simulation repair sprint; 12-14 days)
 **Budget:** ~$12.55
+
+**Audit notes for Phase 2 design (from MASTER_AUDIT_2026-03-15):**
+- **Phase 2C temporal validation:** Must specify which monoculture games to rerun and what drift metric to use BEFORE data collection. Draft spec: rerun 5 games per family (20 games total) with identical config as Phase 1; compare Gini and trade acceptance rate distributions via KS test. Drift threshold: p < 0.05 = drift detected.
+- **H4 format confound:** Compact format is locked by D041–D044. Document explicitly in paper that format is held constant across families — otherwise H4 comparison (architecture vs persona) is confounded by framing. Add to limitations section.
+- **DeepSeek R1 behavioral split:** Document in Phase 2B analysis that DeepSeek's memory (R1) and actions (V3) come from different model modes. This is a within-family confound for H4.
 
 ## Goal
 

@@ -1,0 +1,222 @@
+============================================================
+FORMAT ABLATION: compact vs verbose — 20 calls per format per model
+Total calls: 160 (4 models × 2 formats × 20)
+============================================================
+
+──────────────────────────────────────────────────
+Model family: llama (groq/llama-3.3-70b-versatile)
+Provider key: groq
+
+  [llama] compact calls (20)...
+    call 01: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 02: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 03: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 04: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 05: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 06: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 07: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 08: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 09: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 10: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 11: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 12: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": {\n'
+    call 13: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 14: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 15: OK — '{\n  "action_type":"build",\n   "target":null,\n   "give":null,'
+    call 16: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 17: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 18: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 19: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 20: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+
+  [llama] verbose calls (20)...
+    call 01: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 02: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 03: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 04: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 05: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 06: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 07: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 08: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 09: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 10: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 11: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 12: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 13: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 14: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 15: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 16: OK — '{\n  "action_type": "trade",\n   "target": "a4",\n   "give": {\n'
+    call 17: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 18: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 19: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+    call 20: OK — '{\n  "action_type": "build",\n   "target": null,\n   "give": nu'
+
+──────────────────────────────────────────────────
+Model family: deepseek (openrouter/deepseek/deepseek-chat)
+Provider key: deepseek
+
+  [deepseek] compact calls (20)...
+    call 01: OK — '{"action_type":"build","target":null,"give":null,"want":null'
+    call 02: OK — '{"action_type":"build","building":"Market","give":null,"want'
+    call 03: OK — '{"action_type":"build","building":"Market"}'
+    call 04: OK — '{ "action_type": "build", "target": null, "give": null, "wan'
+    call 05: OK — '{"action_type":"build","building":"Market"}'
+    call 06: OK — '{\n  "action_type": "build",\n  "target": null,\n  "give": null'
+    call 07: OK — '{\n  "action_type": "build",\n  "target": null,\n  "give": null'
+    call 08: OK — '{"action_type":"build","building":"Market"}'
+    call 09: OK — '{"action_type":"build","building":"Market"}'
+    call 10: OK — '{"action_type":"build","building":"Market"}'
+    call 11: OK — '{"action_type":"build","building":"Market"}'
+    call 12: OK — '{"action_type":"build","building":"Market"}'
+    call 13: OK — '{"action_type":"build","building":"Market"}'
+    call 14: OK — '{"action_type":"build","building":"Market","give":{"W":2,"S"'
+    call 15: OK — '{"action_type":"build","building":"Market","give":{"W":2,"S"'
+    call 16: OK — '{"action_type":"build","building":"Market"}'
+    call 17: OK — '{"action_type":"build", "building":"Market"}'
+    call 18: OK — '{"action_type":"trade","target":null,"give":{"W":1,"S":1},"w'
+    call 19: OK — '{ "action_type": "build", "target": "Market", "give": null, '
+    call 20: OK — '{ "action_type": "build", "target": null, "give": null, "wan'
+
+  [deepseek] verbose calls (20)...
+    call 01: OK — '{"action_type":"build","target":null,"give":null,"want":null'
+    call 02: OK — '{"action_type":"build","building":"Granary"}'
+    call 03: OK — '{"action_type":"build","building":"Market"}'
+    call 04: OK — '{"action_type":"build","building":"Tower"}'
+    call 05: OK — '{"action_type":"build","target":null,"give":null,"want":null'
+    call 06: OK — '{"action_type":"build","target":null,"give":null,"want":null'
+    call 07: OK — '{"action_type":"build","building":"Market"}'
+    call 08: OK — '{"action_type":"build","target":null,"give":null,"want":null'
+    call 09: OK — '{"action_type":"build","building":"Granary"}'
+    call 10: OK — '{"action_type":"build","building":"Market"}'
+    call 11: OK — '{"action_type":"build","building":"Granary","give":{"wood":1'
+    call 12: OK — '{"action_type":"build","target":null,"give":null,"want":null'
+    call 13: OK — '{"action_type":"build","building":"Market"}'
+    call 14: OK — '{"action_type":"build","target":null,"give":null,"want":null'
+    call 15: OK — '{"action_type":"build","building":"Granary"}'
+    call 16: OK — '{"action_type":"build","target":null,"give":null,"want":null'
+    call 17: OK — '{ "action_type": "build", "building": "Tower" }'
+    call 18: OK — '{"action_type":"build","target":null,"give":null,"want":null'
+    call 19: OK — '{"action_type":"build","target":null,"give":null,"want":null'
+    call 20: OK — '{"action_type":"build","target":null,"give":null,"want":null'
+
+──────────────────────────────────────────────────
+Model family: gemini (gemini/gemini-2.5-flash)
+Provider key: gemini
+
+  [gemini] compact calls (20)...
+    call 01: OK — '{"action_type":"build","building":"Market"}'
+    call 02: OK — '{"action_type":"build","building":"Market"}'
+    call 03: OK — '{"action_type":"build","building":"Market"}'
+    call 04: OK — '{"action_type":"build","building":"Market"}'
+    call 05: OK — '{"action_type":"build","building":"Market"}'
+    call 06: OK — '{"action_type":"build","building":"Market"}'
+parse_agent_response: strategies 1–2 failed, trying strategy 3 (extract_first_json_object). Input preview: "I have enough for a tower, or a market. But my score isn't that high. Maybe it's"
+parse_agent_response: all strategies failed, returning None (truncated or unrecoverable). Input preview: "I have enough for a tower, or a market. But my score isn't that high. Maybe it's"
+    call 07: FAIL — "I have enough for a tower, or a market. But my score isn't t"
+    call 08: OK — '{"action_type":"build","building":"Market"}'
+    call 09: OK — '{"action_type":"build","building":"Market"}'
+    call 10: OK — '{"action_type": "build", "building": "Market"}'
+    call 11: OK — '{"action_type":"build","building":"Market"}'
+    call 12: OK — '{"action_type":"build","building":"Market"}'
+    call 13: OK — '{"action_type":"build","building":"Market"}'
+    call 14: OK — '{"action_type":"build","building":"Market"}'
+    call 15: OK — '{"action_type":"build","building":"Market"}'
+    call 16: OK — '{"action_type":"build","building":"Market"}'
+    call 17: OK — '{"action_type":"build","building":"Market"}'
+    call 18: OK — '{"action_type":"build","building":"Market"}'
+    call 19: OK — '{"action_type":"build","building":"Market"}'
+    call 20: OK — '{"action_type":"build","building":"Market"}'
+
+  [gemini] verbose calls (20)...
+    call 01: OK — '{"action_type": "build", "building": "Market"}'
+    call 02: OK — '{"action_type": "build", "building": "Granary"}'
+    call 03: OK — '{"action_type": "build", "building": "Granary"}'
+    call 04: OK — '{"action_type": "build", "building": "Granary"}'
+    call 05: OK — '{"action_type": "build", "building": "Granary"}'
+    call 06: OK — '{"action_type": "build", "building": "Granary"}'
+    call 07: OK — '{"action_type": "build", "building": "Granary"}'
+    call 08: OK — '{"action_type": "build", "building": "Granary"}'
+    call 09: OK — '{"action_type": "build", "building": "Market"}'
+    call 10: OK — '{"action_type": "build", "building": "Market"}'
+    call 11: OK — '{"action_type": "build", "building": "Market"}'
+    call 12: OK — '{"action_type": "build", "building": "Granary"}'
+    call 13: OK — '{"action_type": "build", "building": "Granary"}'
+    call 14: OK — '{"action_type": "build", "building": "Granary"}'
+    call 15: OK — '{"action_type": "build", "building": "Granary"}'
+    call 16: OK — '{"action_type": "build", "building": "Market"}'
+    call 17: OK — '{"action_type": "build", "building": "Granary"}'
+    call 18: OK — '{"action_type": "build", "building": "Granary"}'
+    call 19: OK — '{"action_type": "build", "building": "Granary"}'
+    call 20: OK — '{"action_type": "build", "building": "Market"}'
+
+──────────────────────────────────────────────────
+Model family: mistral (mistral/mistral-small-2506)
+Provider key: mistral
+
+  [mistral] compact calls (20)...
+    call 01: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 02: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 03: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 04: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 05: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 06: OK — '{\n  "action_type": "build",\n  "target": null,\n  "give": null'
+    call 07: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 08: OK — '{\n  "action_type": "build",\n  "target": null,\n  "give": null'
+    call 09: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 10: OK — '{\n  "action_type": "build",\n  "target": null,\n  "give": null'
+    call 11: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 12: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 13: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 14: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 15: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 16: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 17: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 18: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 19: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 20: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+
+  [mistral] verbose calls (20)...
+    call 01: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 02: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 03: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 04: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 05: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 06: OK — '{\n  "action_type": "build",\n  "building": "Market"\n}'
+    call 07: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 08: OK — '{\n  "action_type": "build",\n  "building": "Market"\n}'
+    call 09: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 10: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 11: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 12: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 13: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 14: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 15: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 16: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 17: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 18: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 19: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+    call 20: OK — '{\n  "action_type": "build",\n  "building": "Granary"\n}'
+
+============================================================
+ABLATION RESULTS
+============================================================
+Family          Compact    Verbose  Decision
+------------------------------------------------------------
+llama         20/20 ( 100%)   20/20 ( 100%)  compact
+deepseek      20/20 ( 100%)   20/20 ( 100%)  compact
+gemini        19/20 (  95%)   20/20 ( 100%)  compact
+  compact failures (1):
+    "I have enough for a tower, or a market. But my score isn't that high. Maybe it's time to build. The tower costs S2 C2. I"
+mistral       20/20 ( 100%)   20/20 ( 100%)  compact
+
+============================================================
+FORMAT DECISIONS: {'llama': 'compact', 'deepseek': 'compact', 'gemini': 'compact', 'mistral': 'compact'}
+============================================================
+
+--- DECISIONS.md evidence (paste into D041–D044) ---
+| D0XX | M001/S04/T02 | prompts | Format decision: llama | compact | compact 20/20, verbose 20/20; threshold ≥90% compact → compact, else verbose | No — post-registration lock |
+| D0XX | M001/S04/T02 | prompts | Format decision: deepseek | compact | compact 20/20, verbose 20/20; threshold ≥90% compact → compact, else verbose | No — post-registration lock |
+| D0XX | M001/S04/T02 | prompts | Format decision: gemini | compact | compact 19/20, verbose 20/20; threshold ≥90% compact → compact, else verbose | No — post-registration lock |
+| D0XX | M001/S04/T02 | prompts | Format decision: mistral | compact | compact 20/20, verbose 20/20; threshold ≥90% compact → compact, else verbose | No — post-registration lock |
+
+Done.
