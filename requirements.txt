@@ -1,0 +1,46 @@
+# Pairwise Behavioral Signatures — Python Dependencies
+# Pin ALL versions for reproducibility
+
+# LLM routing
+litellm>=1.35.0,<2.0.0
+
+# Simulation engine
+# concordia-ai @ git+https://github.com/google-deepmind/concordia.git@v2.0.0
+# Note: Pin to v2.0.0 tag when installed. Evaluate via: python -c "import concordia; print(concordia.__version__)"
+
+# Data
+polars>=0.20.0,<1.0.0
+pyarrow>=15.0.0,<16.0.0
+
+# Statistics + ML
+statsmodels>=0.14.0,<1.0.0
+scikit-learn>=1.4.0,<2.0.0
+scipy>=1.12.0,<2.0.0
+
+# NLP
+sentence-transformers>=2.5.0,<3.0.0
+
+# Network analysis
+networkx>=3.2.0,<4.0.0
+
+# Visualization
+seaborn>=0.13.0,<1.0.0
+matplotlib>=3.8.0,<4.0.0
+
+# Utilities
+pydantic>=2.5.0,<3.0.0
+python-dotenv>=1.0.0,<2.0.0
+tenacity>=8.2.0,<9.0.0
+tqdm>=4.66.0,<5.0.0
+rich>=13.7.0,<14.0.0
+
+# Notebooks
+jupyter>=1.0.0,<2.0.0
+ipykernel>=6.29.0,<7.0.0
+
+# Testing
+pytest>=8.0.0,<9.0.0
+pytest-asyncio>=0.23.0,<1.0.0
+
+# Dev
+ruff>=0.3.0,<1.0.0

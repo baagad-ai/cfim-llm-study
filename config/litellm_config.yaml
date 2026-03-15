@@ -1,0 +1,72 @@
+# LiteLLM Configuration
+# Pairwise Behavioral Signatures Research
+# Prices verified: March 15, 2026
+
+model_list:
+  - model_name: llama-70b
+    litellm_params:
+      model: groq/llama-3.3-70b-versatile
+      api_key: os.environ/GROQ_API_KEY
+      max_tokens: 150
+      response_format: {"type": "json_object"}
+      # Groq: automatic prompt caching (50% discount on cached input tokens)
+      # Input: $0.59/1M | Output: $0.79/1M | Cache hit: $0.30/1M
+
+  - model_name: deepseek-chat
+    litellm_params:
+      model: deepseek/deepseek-chat
+      api_key: os.environ/DEEPSEEK_API_KEY
+      max_tokens: 150
+      response_format: {"type": "json_object"}
+      # DeepSeek V3.2 chat mode (agent calls)
+      # Input: $0.28/1M | Output: $0.42/1M | Cache hit: $0.028/1M (auto cache, 90% discount)
+      # IMPORTANT: json_object only, no json_schema enforcement — include schema in prompt text
+
+  - model_name: deepseek-reasoner
+    litellm_params:
+      model: deepseek/deepseek-reasoner
+      api_key: os.environ/DEEPSEEK_API_KEY
+      max_tokens: 300
+      # DeepSeek V3.2 reasoner mode (DeepSeek agent reflections ONLY)
+      # Same pricing as chat: $0.28/$0.42. No JSON mode — reasoner uses thinking chains.
+      # max_tokens 300 to accommodate thinking chain prefix
+
+  - model_name: gemini-flash
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GOOGLE_API_KEY
+      max_tokens: 150
+      response_format: {"type": "json_object"}
+      # Input: $0.30/1M | Output: $2.50/1M | Cache: ~$0.075/1M
+      # CRITICAL: thinking_budget=0 MUST be set in code layer (extra_body) for every agent call
+      # Failure to disable thinking → 5-12× output token inflation at $2.50/1M
+
+  - model_name: mistral-small
+    litellm_params:
+      model: mistral/mistral-small-3.1-2503
+      # PINNED to specific dated version, NOT mistral-small-latest
+      api_key: os.environ/MISTRAL_API_KEY
+      max_tokens: 150
+      response_format: {"type": "json_object"}
+      # Input: $0.10/1M | Output: $0.30/1M | No caching
+
+  - model_name: gm
+    litellm_params:
+      model: mistral/mistral-small-3.1-2503
+      api_key: os.environ/MISTRAL_API_KEY
+      max_tokens: 200
+      response_format: {"type": "json_object"}
+      # GM model: same as mistral-small but with higher max_tokens for resolution output
+
+router_settings:
+  retry_policy:
+    max_retries: 3
+    retry_after: 2  # seconds between retries
+  budget_config:
+    max_budget: 80  # USD hard cap — STOP ALL CALLS if exceeded
+    budget_duration: "total"  # not per-day, total project cap
+  routing_strategy: "simple-shuffle"  # no complex routing needed
+
+# Cost tracking
+success_callback: ["langfuse"]  # optional: add langfuse for cost dashboard
+failure_callback: ["slack"]     # optional: alert on failures

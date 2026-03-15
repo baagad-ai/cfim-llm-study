@@ -1,0 +1,28 @@
+{
+  "games_completed": {
+    "phase0": 0,
+    "phase1": 0,
+    "phase2": 0,
+    "phase2b": 0,
+    "phase2c": 0,
+    "total": 0,
+    "target": 335
+  },
+  "cost_usd": {
+    "burned": 0.0,
+    "cap": 80.0,
+    "phase0_budget": 1.50,
+    "phase1_budget": 6.00,
+    "phase2_budget": 10.50,
+    "phase2b_budget": 1.00,
+    "phase2c_budget": 1.05
+  },
+  "json_parse_success_rate": {
+    "llama": null,
+    "deepseek": null,
+    "gemini": null,
+    "mistral": null
+  },
+  "hypotheses_preregistered": false,
+  "osf_registration_id": null
+}
