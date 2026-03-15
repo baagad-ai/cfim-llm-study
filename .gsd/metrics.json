@@ -163,6 +163,132 @@
       "toolCalls": 0,
       "assistantMessages": 10,
       "userMessages": 0
+    },
+    {
+      "type": "research-slice",
+      "id": "M001/S03",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773573974794,
+      "finishedAt": 1773574411553,
+      "tokens": {
+        "input": 38,
+        "output": 19108,
+        "cacheRead": 3176856,
+        "cacheWrite": 85763,
+        "total": 3281765
+      },
+      "cost": 1.5614020499999999,
+      "toolCalls": 0,
+      "assistantMessages": 36,
+      "userMessages": 0
+    },
+    {
+      "type": "plan-slice",
+      "id": "M001/S03",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773574411555,
+      "finishedAt": 1773574774110,
+      "tokens": {
+        "input": 20,
+        "output": 15422,
+        "cacheRead": 1232483,
+        "cacheWrite": 55878,
+        "total": 1303803
+      },
+      "cost": 0.8106774,
+      "toolCalls": 0,
+      "assistantMessages": 18,
+      "userMessages": 0
+    },
+    {
+      "type": "execute-task",
+      "id": "M001/S03/T01",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773574774111,
+      "finishedAt": 1773574918633,
+      "tokens": {
+        "input": 20,
+        "output": 6807,
+        "cacheRead": 814269,
+        "cacheWrite": 24084,
+        "total": 845180
+      },
+      "cost": 0.43676070000000006,
+      "toolCalls": 0,
+      "assistantMessages": 18,
+      "userMessages": 0
+    },
+    {
+      "type": "execute-task",
+      "id": "M001/S03/T02",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773574918634,
+      "finishedAt": 1773575128879,
+      "tokens": {
+        "input": 26,
+        "output": 10800,
+        "cacheRead": 1309358,
+        "cacheWrite": 40843,
+        "total": 1361027
+      },
+      "cost": 0.7080466499999999,
+      "toolCalls": 0,
+      "assistantMessages": 24,
+      "userMessages": 0
+    },
+    {
+      "type": "execute-task",
+      "id": "M001/S03/T03",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773575128880,
+      "finishedAt": 1773575409266,
+      "tokens": {
+        "input": 41,
+        "output": 13937,
+        "cacheRead": 2239542,
+        "cacheWrite": 43103,
+        "total": 2296623
+      },
+      "cost": 1.0426768500000003,
+      "toolCalls": 0,
+      "assistantMessages": 39,
+      "userMessages": 0
+    },
+    {
+      "type": "execute-task",
+      "id": "M001/S03/T04",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773575409267,
+      "finishedAt": 1773575537869,
+      "tokens": {
+        "input": 18,
+        "output": 6521,
+        "cacheRead": 709103,
+        "cacheWrite": 26669,
+        "total": 742311
+      },
+      "cost": 0.41060864999999996,
+      "toolCalls": 0,
+      "assistantMessages": 16,
+      "userMessages": 0
+    },
+    {
+      "type": "complete-slice",
+      "id": "M001/S03",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773575537870,
+      "finishedAt": 1773575789408,
+      "tokens": {
+        "input": 30,
+        "output": 11972,
+        "cacheRead": 1586489,
+        "cacheWrite": 42619,
+        "total": 1641110
+      },
+      "cost": 0.81543795,
+      "toolCalls": 0,
+      "assistantMessages": 28,
+      "userMessages": 0
     }
   ]
 }
