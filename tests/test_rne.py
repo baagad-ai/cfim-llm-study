@@ -141,6 +141,70 @@ class TestRNEConfig:
         assert agents[1]["agent_id"] == "a1"
         assert agents[1]["model_family"] == "llama"
 
+    def test_family_validation_rejects_unknown(self):
+        """RNEConfig must reject family names not in _MODEL_REGISTRY."""
+        from src.simulation.config import RNEConfig
+        from pydantic import ValidationError
+        with pytest.raises(ValidationError, match="Unknown model family"):
+            RNEConfig(family_a="claude", family_b="llama", condition="A")
+        with pytest.raises(ValidationError, match="Unknown model family"):
+            RNEConfig(family_a="mistral", family_b="gpt4", condition="A")
+
+    def test_all_seven_families_accepted(self):
+        """All 7 CFIM families must be accepted by RNEConfig."""
+        from src.simulation.config import RNEConfig, RNE_FAMILIES
+        expected = {"llama", "deepseek", "gemini", "mistral", "gpt4o-mini", "qwen", "phi4"}
+        assert RNE_FAMILIES == expected
+        for fam in expected:
+            c = RNEConfig(family_a=fam, family_b="mistral", condition="A")
+            assert c.family_a == fam
+
+    def test_from_rne_all_seven_families(self):
+        """GameConfig.from_rne() must work for all 7 CFIM families."""
+        from src.simulation.config import RNEConfig, GameConfig
+        families = ["llama", "deepseek", "gemini", "mistral", "gpt4o-mini", "qwen", "phi4"]
+        for fam in families:
+            rne = RNEConfig(family_a=fam, family_b="mistral", condition="A")
+            gc = GameConfig.from_rne(rne)
+            assert gc.agent_models[0]["model_family"] == fam
+            assert gc.agent_models[0]["model_string"] != ""
+
+    def test_pairwise_with_hyphenated_family(self):
+        """pairwise config must parse correctly when a family name contains a hyphen."""
+        from src.simulation.config import GameConfig
+        gc = GameConfig.from_name("pairwise-llama-gpt4o-mini")
+        assert gc.num_agents == 6
+        families_in_config = [a["model_family"] for a in gc.agent_models]
+        assert families_in_config[:3] == ["llama", "llama", "llama"]
+        assert families_in_config[3:] == ["gpt4o-mini", "gpt4o-mini", "gpt4o-mini"]
+
+    def test_mono_configs_all_seven(self):
+        """All 7 {family}-mono configs must resolve without error."""
+        from src.simulation.config import GameConfig
+        for fam in ["llama", "deepseek", "gemini", "mistral", "gpt4o-mini", "qwen", "phi4"]:
+            gc = GameConfig.from_name(f"{fam}-mono")
+            assert gc.num_agents == 6
+            assert all(a["model_family"] == fam for a in gc.agent_models)
+
+    def test_model_registry_matches_router(self):
+        """_MODEL_REGISTRY families must exactly match llm_router PROVIDER_KWARGS keys."""
+        from src.simulation.config import _MODEL_REGISTRY
+        from src.simulation.llm_router import PROVIDER_KWARGS, _FAMILY_MODEL
+        assert set(_MODEL_REGISTRY.keys()) == set(PROVIDER_KWARGS.keys()), (
+            f"Registry/PROVIDER_KWARGS mismatch: "
+            f"registry={sorted(_MODEL_REGISTRY)}, router={sorted(PROVIDER_KWARGS)}"
+        )
+        assert set(_MODEL_REGISTRY.keys()) == set(_FAMILY_MODEL.keys()), (
+            f"Registry/_FAMILY_MODEL mismatch: "
+            f"registry={sorted(_MODEL_REGISTRY)}, router={sorted(_FAMILY_MODEL)}"
+        )
+        # Spot-check model strings agree
+        for fam, entry in _MODEL_REGISTRY.items():
+            assert entry["model_string"] == _FAMILY_MODEL[fam], (
+                f"{fam}: config model_string {entry['model_string']!r} != "
+                f"router {_FAMILY_MODEL[fam]!r}"
+            )
+
 
 # ===========================================================================
 # T01: GameLogger — JSONL writer

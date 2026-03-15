@@ -12,12 +12,13 @@ Two entry points:
     → Trade Island engine (agent.py, gm.py): backwards-compat interface.
 
 Provider quirks encoded in PROVIDER_KWARGS (keyed by family name):
-  - Gemini: thinking disabled (D020), no response_format (D021), max_tokens=200 (D022)
+  - Gemini: thinking disabled (D020), response_format=json_object (D047 supersedes D021),
+            max_tokens=200 (D022)
   - DeepSeek: via OpenRouter (D019), json_object mode (D017)
-  - All others: json_object mode where supported
+  - All others: json_object mode, max_tokens=150
 
 litellm.drop_params = True  is set at module level — silently drops params
-the provider does not support (e.g. response_format for providers that lack it).
+the provider does not support (e.g. thinking kwarg for non-Gemini providers).
 """
 
 import re
