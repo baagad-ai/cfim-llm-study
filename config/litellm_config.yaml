@@ -14,37 +14,40 @@ model_list:
 
   - model_name: deepseek-chat
     litellm_params:
-      model: deepseek/deepseek-chat
-      api_key: os.environ/DEEPSEEK_API_KEY
+      model: openrouter/deepseek/deepseek-chat
+      api_key: os.environ/OPENROUTER_API_KEY
       max_tokens: 150
       response_format: {"type": "json_object"}
-      # DeepSeek V3.2 chat mode (agent calls)
-      # Input: $0.28/1M | Output: $0.42/1M | Cache hit: $0.028/1M (auto cache, 90% discount)
+      # DeepSeek V3 via OpenRouter (direct DeepSeek API unavailable from India)
+      # OpenRouter pricing: ~$0.26/1M input, $0.38/1M output (no significant markup vs direct)
       # IMPORTANT: json_object only, no json_schema enforcement — include schema in prompt text
 
   - model_name: deepseek-reasoner
     litellm_params:
-      model: deepseek/deepseek-reasoner
-      api_key: os.environ/DEEPSEEK_API_KEY
+      model: openrouter/deepseek/deepseek-r1
+      api_key: os.environ/OPENROUTER_API_KEY
       max_tokens: 300
-      # DeepSeek V3.2 reasoner mode (DeepSeek agent reflections ONLY)
-      # Same pricing as chat: $0.28/$0.42. No JSON mode — reasoner uses thinking chains.
-      # max_tokens 300 to accommodate thinking chain prefix
+      # DeepSeek R1 via OpenRouter (reasoner mode for DeepSeek agent reflections ONLY)
+      # No JSON mode — reasoner uses thinking chains. max_tokens 300 for thinking chain prefix.
 
   - model_name: gemini-flash
     litellm_params:
       model: gemini/gemini-2.5-flash
       api_key: os.environ/GOOGLE_API_KEY
-      max_tokens: 150
-      response_format: {"type": "json_object"}
+      max_tokens: 200
       # Input: $0.30/1M | Output: $2.50/1M | Cache: ~$0.075/1M
-      # CRITICAL: thinking_budget=0 MUST be set in code layer (extra_body) for every agent call
-      # Failure to disable thinking → 5-12× output token inflation at $2.50/1M
+      # REQUIRES paid-tier Google AI Studio key (billing-enabled GCP project)
+      # Free-tier key hits 429 immediately on burst calls (15 RPM limit)
+      # CRITICAL: thinking disabled via thinking={'type':'disabled','budget_tokens':0} in ALL calls
+      # This maps to thinkingConfig.thinkingBudget=0 in the API request
+      # Verified: reasoning_tokens=None when correctly disabled
+      # Do NOT use response_format json_object — strip markdown fences in parser instead
 
   - model_name: mistral-small
     litellm_params:
-      model: mistral/mistral-small-3.1-2503
-      # PINNED to specific dated version, NOT mistral-small-latest
+      model: mistral/mistral-small-2506
+      # PINNED to mistral-small-2506 (3.1-2503 no longer available on this account)
+      # mistral-small-latest resolves to 2506 as of March 2026 — pin dated ID for reproducibility
       api_key: os.environ/MISTRAL_API_KEY
       max_tokens: 150
       response_format: {"type": "json_object"}
@@ -52,7 +55,7 @@ model_list:
 
   - model_name: gm
     litellm_params:
-      model: mistral/mistral-small-3.1-2503
+      model: mistral/mistral-small-2506
       api_key: os.environ/MISTRAL_API_KEY
       max_tokens: 200
       response_format: {"type": "json_object"}

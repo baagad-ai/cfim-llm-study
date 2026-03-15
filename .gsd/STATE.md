@@ -1,9 +1,9 @@
 # GSD State
 
 **Active Milestone:** M001 — Infrastructure + Phase 0
-**Active Slice:** S01 — LiteLLM + Environment Setup
+**Active Slice:** S02 — Concordia v2.0 Integration + Trade Island
 **Phase:** planning
-**Requirements Status:** 12 active · 0 validated · 3 deferred · 3 out of scope
+**Requirements Status:** 12 active · 1 validated (R001) · 3 deferred · 3 out of scope
 
 ## Milestone Registry
 - 🔄 **M001:** Infrastructure + Phase 0 (Setup + Calibration + 30 games)
@@ -11,14 +11,32 @@
 - ⬜ **M003:** Phase 2 Pairwise + Persona + Validation (185 games)
 - ⬜ **M004:** Analysis + Writing
 
+## M001 Slice Status
+- ✅ **S01:** LiteLLM + Environment Setup — COMPLETE
+- 🔄 **S02:** Concordia v2.0 Integration + Trade Island — next
+- ⬜ **S03:** Prompt Templates + JSON Mode Validation
+- ⬜ **S04:** Phase 0: Format Ablation + GM Sensitivity (30 games)
+- ⬜ **S05:** OSF Pre-Registration + Analysis Stubs
+
+## S01 Completion Summary
+- venv created at .venv/, all base deps installed (litellm, python-dotenv)
+- 4/4 providers verified: Groq ✅, OpenRouter/DeepSeek ✅, Gemini ✅, Mistral ✅
+- Key deviations from blueprint (all recorded in DECISIONS.md D019-D022):
+  - DeepSeek → OpenRouter proxy (India payment restriction)
+  - Mistral → mistral-small-2506 (3.1-2503 not available)
+  - Gemini → no json_object mode; thinking disabled via budget_tokens=0; max_tokens=200
+  - Gemini → paid tier active (billing enabled on GCP project)
+- Analysis stubs (H1-H4) committed — pre-registration ready
+- Git: 2 commits, clean history
+
 ## Recent Decisions
-- D001-D018 recorded at setup (see DECISIONS.md)
-- Dedicated git repo initialized: research/model-family/.git
-- venv to be created at research/model-family/.venv/
-- OSF account creation is a blocking task before Phase 1
+- D019: DeepSeek via OpenRouter (India payment constraint)
+- D020: Gemini thinking disable method (budget_tokens=0)
+- D021: Gemini JSON mode workaround (no json_object, use fence stripper)
+- D022: Gemini max_tokens=200 minimum
 
 ## Blockers
-- None currently. API keys to be collected before first LiteLLM connectivity test.
+- None
 
 ## Games Completed
 - Phase 0: 0 / 30
@@ -29,9 +47,8 @@
 - **Total: 0 / 335**
 
 ## Cost Burned
-- Total: $0.00 / $80.00 cap
-- Phase 0: $0.00 / ~$1.50 budget
-- Phase 1: $0.00 / ~$6.00 budget
+- Connectivity testing: ~$0.0002
+- Total: ~$0.0002 / $80.00 cap
 
 ## Next Action
-Begin M001/S01: Set up Python venv, install dependencies (LiteLLM, Concordia, analysis stack), configure LiteLLM with all 4 providers, collect API keys.
+M001/S02: Evaluate Concordia v2.0 marketplace component, then implement Trade Island simulation engine.
