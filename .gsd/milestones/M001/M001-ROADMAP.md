@@ -17,7 +17,7 @@
 
 ## Key Risks / Unknowns
 
-- **Game mechanics correctness** — Trade Island has a double-spending race condition across simultaneous proposals. GM resolution must validate trades sequentially against post-prior-trade inventory, not start-of-round snapshot. If this is wrong, experiments produce unsound data. Retired in S02 by verified smoke test with ≥1 accepted trade.
+- **Game mechanics correctness** — Trade Island has a double-spending race condition across simultaneous proposals. GM resolution must validate trades sequentially against post-prior-trade inventory, not start-of-round snapshot. If this is wrong, experiments produce unsound data. Partially retired in S02: double-spend guard verified by inline test and test_smoke.py mock; live trade acceptance path unverified (D037 — all 115 Mistral proposals declined). Full retirement requires ≥1 accepted trade in S04 calibration with S03-improved prompts.
 - **Per-provider JSON parse reliability under realistic game state** — Gemini with complex multi-line prompts may produce fences or partial JSON; DeepSeek R1 reflections embed `<think>` blocks. Tolerant parser must handle all variants before S04's 80-call format ablation. Retired in S03 by exercising all failure modes in pytest.
 - **DeepSeek R1 reflection cost** — R1 output is ~5.8× more expensive than V3.2 ($2.19 vs $0.38/1M). 30 Phase 0 games × 5 reflections = up to 150 R1 calls; worst-case cost exceeds D024's $0.45 estimate. The $1.50 Phase 0 budget covers it only if reflection chains stay short. Retired in S04 T01 by monitoring per-game cost and reverting to V3.2 if cost exceeds $0.05/DeepSeek-game.
 - **Gemini 429 bursts during format ablation** — 80 calls in quick succession on paid tier. LiteLLM retry handles transient bursts; sustained bursts could exhaust retries. Mitigated in S04 by 0.5s inter-call gap (same pattern as `test_connectivity.py`).
@@ -26,7 +26,7 @@
 
 ## Proof Strategy
 
-- Game mechanics correctness → retire in S02 by running a single all-Mistral 25-round game; manually verify JSONL shows ≥1 accepted+validated trade, ≥1 build, no double-spend in round_end inventory
+- Game mechanics correctness → partially retired in S02 (double-spend guard + 25-round completion verified); full retirement requires ≥1 live accepted trade in S04 Phase 0 calibration games after S03 prompt improvements (D037)
 - JSON parse reliability → retire in S03 by running `pytest tests/test_prompts.py` with synthetic malformed responses covering all 4 failure modes (valid, fenced, mixed-text, truncated)
 - R1 cost overrun → retire in S04 by inspecting per-game cost at T01 gate; revert to V3.2 if ≥1 DeepSeek-game exceeds $0.05 total
 
@@ -75,10 +75,10 @@ This milestone is complete only when all are true:
   > After this: `python scripts/run_game.py --config mistral-mono --games 1` runs a complete 25-round game, writes valid JSONL to `data/raw/{game_id}/game.jsonl`, saves per-round checkpoints, and costs ≤$0.02 — verified by inspecting the log file directly. ✅ COMPLETE
 
 - [ ] **S03: Prompt Templates + Tolerant Parser** `risk:medium` `depends:[S02]`
-  > After this: all 6 prompt functions (agent_action, trade_response, gm_resolution, building_decision, reflection, json_utils) are implemented; `pytest tests/test_prompts.py` passes all edge-case parse tests; token counts are within 20% of blueprint targets; the game engine uses these templates for all subsequent runs.
+  > After this: all 6 prompt functions (agent_action, trade_response, gm_resolution, building_decision, reflection, json_utils) are implemented; `pytest tests/test_prompts.py` passes all edge-case parse tests; token counts are within 20% of blueprint targets; `respond_to_trade` template is designed to produce measurable acceptance rates (addressing D037 — 0 accepted trades in Mistral-mono run); `GameConfig.from_name('phase0')` updated from mistral-mono placeholder to real 4-family mix (prerequisite for S04); the game engine uses these templates for all subsequent runs.
 
 - [ ] **S04: Phase 0 Calibration (30 games)** `risk:medium` `depends:[S02,S03]`
-  > After this: 30 calibration games are complete with valid JSONL logs; format decision (compact vs verbose) is locked per model in DECISIONS.md; GM confound is quantified; `data/phase0/PHASE0_REPORT.md` contains a Go/No-Go recommendation for Phase 1; total cost ≤$1.50.
+  > After this: 30 calibration games are complete with valid JSONL logs; format decision (compact vs verbose) is locked per model in DECISIONS.md; GM confound is quantified; trade acceptance rate >0 confirmed in at least one calibration game (retiring D037); Mistral cost tracking verified (or alternative extraction path documented — `response_cost=None` issue from S02); crash-resume tested (kill mid-game, resume, no duplicate JSONL events); `data/phase0/PHASE0_REPORT.md` contains a Go/No-Go recommendation for Phase 1; total cost ≤$1.50.
 
 - [ ] **S05: OSF Pre-Registration** `risk:low` `depends:[S02]`
   > After this: OSF formal registration is submitted (timestamp-locked), registration URL is recorded in `data/metadata/osf_registration.json`, GitHub repo is public and linked from OSF, and Phase 1 (M002) is unblocked on the scientific integrity constraint.
@@ -106,9 +106,11 @@ Produces:
 - `src/simulation/` — 6 modules: `config.py`, `llm_router.py`, `agent.py`, `gm.py`, `game.py`, `logger.py`
 - `scripts/run_game.py` — CLI entry point with `--config` and `--games` args
 - `data/raw/{game_id}/game.jsonl` schema — finalized and documented; columns match analysis stubs (`game_id`, `model_family`, `round`, `agent_id`, `vp`, `inventory_value`)
-- `tests/test_smoke.py` — 3-round mock game with stubbed LLM responses; passes with `pytest`
-- `GameConfig` named configs: `mistral-mono`, `phase0`, `pairwise-{A}-{B}`
+- `tests/test_smoke.py` — 5 mock-mode tests covering schema, cost, checkpoint, double-spend; passes with `pytest`
+- `GameConfig` named configs: `mistral-mono`, `phase0` (placeholder — see note), `pairwise-{A}-{B}`
 - `data/raw/{game_id}/checkpoint_r{N:02d}.json` — checkpoint schema (full game state)
+
+**Note — phase0 config is a placeholder:** `GameConfig.from_name('phase0')` currently returns a mistral-mono config. S03 must update this to the real 4-family mix before S04 calibration games can run. Failing to do so means all 30 calibration games run as mistral-mono, which does not satisfy the 4-model pairwise success criterion.
 
 Consumes:
 - `litellm.completion()` call signatures from S01
