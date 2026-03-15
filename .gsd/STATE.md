@@ -55,10 +55,16 @@ All recorded in DECISIONS.md. These must be respected in S02+:
 
 - None currently
 
+## Recent Decisions
+
+- D023: Custom game loop — Concordia entity system bypassed (sample_text interface incompatible with per-provider workarounds)
+- D024: DeepSeek R1 for reflections via OpenRouter; V3.2 for all other DeepSeek calls
+- D025: JSON per-round checkpoints (checkpoint_r{N:02d}.json), resume from last checkpoint
+
 ## Next Action
 
-**S02, T01:** Install full dependency stack — `concordia-ai`, `polars`, `statsmodels`, etc.
-Then T02: Evaluate Concordia v2.0 marketplace component.
+**S02, T01:** Install remaining dependency stack — `gdm-concordia` already installed from GitHub as 2.4.0. Remaining: `polars`, `statsmodels`, `scikit-learn`, `networkx`, `sentence-transformers`, `seaborn`, `matplotlib`, `pydantic`, `pytest`, `jupyter`. Then pin to requirements-lock.txt.
+Then T02: Implement custom game loop (D023 — skip Concordia marketplace evaluation, go straight to implementation).
 
 ## Git History
 
