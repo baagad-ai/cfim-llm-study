@@ -19,6 +19,24 @@
       "toolCalls": 0,
       "assistantMessages": 35,
       "userMessages": 0
+    },
+    {
+      "type": "plan-milestone",
+      "id": "M001",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773570275718,
+      "finishedAt": 1773570434913,
+      "tokens": {
+        "input": 16,
+        "output": 7385,
+        "cacheRead": 792886,
+        "cacheWrite": 41862,
+        "total": 842149
+      },
+      "cost": 0.5056713,
+      "toolCalls": 0,
+      "assistantMessages": 14,
+      "userMessages": 0
     }
   ]
 }
