@@ -26,6 +26,7 @@ from typing import Any
 
 from src.simulation.llm_router import call_llm
 from src.simulation.logger import GameLogger
+from src.prompts.gm_resolution import build_gm_messages, build_simple_gm_messages
 
 logger = logging.getLogger(__name__)
 
@@ -271,21 +272,14 @@ class GM:
         checks be the gate) and log gm_parse_failure. The inventory path is the
         correctness-critical gate; the LLM layer is for context-aware fairness checks.
         """
-        prompt = _build_gm_prompt(round_num, proposals)
-        messages = [
-            {"role": "system", "content": "You are the Game Master for Trade Island. Validate trades. Respond ONLY with JSON."},
-            {"role": "user", "content": prompt},
-        ]
+        messages = build_gm_messages(round_num, proposals)
 
         raw = None
         for attempt in range(2):
             try:
                 if attempt == 1:
                     # Simplified retry prompt
-                    messages = [
-                        {"role": "system", "content": "You are a trade validator. Respond ONLY with JSON."},
-                        {"role": "user", "content": _build_simple_gm_prompt(proposals)},
-                    ]
+                    messages = build_simple_gm_messages(proposals)
                 content, _cost = call_llm(
                     model_string=self.model_string,
                     provider="mistral",
@@ -321,38 +315,6 @@ class GM:
         )
         logger.warning("GM JSON parse failed after 2 attempts on round %d", round_num)
         return {i: (True, "gm_parse_failed") for i in range(len(proposals))}
-
-
-# ------------------------------------------------------------------
-# Prompt builders
-# ------------------------------------------------------------------
-
-def _build_gm_prompt(round_num: int, proposals: list[dict]) -> str:
-    """Build the batch validation prompt for the GM LLM."""
-    lines = [
-        f"Round {round_num}. Validate these trade proposals.",
-        "For each, check: is the trade fair and legal given Trade Island rules?",
-        "Proposals:",
-    ]
-    for i, p in enumerate(proposals):
-        lines.append(
-            f"  [{i}] {p.get('proposer')} gives {p.get('give')} "
-            f"to {p.get('responder')} for {p.get('want')}. "
-            f"Responder accepted: {p.get('accepted')}."
-        )
-    lines.append(
-        'Respond with JSON: {"verdicts": [{"idx": 0, "valid": true, "reason": "..."}, ...]}'
-    )
-    return "\n".join(lines)
-
-
-def _build_simple_gm_prompt(proposals: list[dict]) -> str:
-    """Simplified retry prompt for GM when first parse fails."""
-    lines = ["Validate trades. JSON only."]
-    for i, p in enumerate(proposals):
-        lines.append(f"Trade {i}: proposer={p.get('proposer')}, responder={p.get('responder')}")
-    lines.append('{"verdicts":[{"idx":0,"valid":true,"reason":"ok"}]}')
-    return "\n".join(lines)
 
 
 # ------------------------------------------------------------------

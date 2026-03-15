@@ -31,7 +31,7 @@ Research capability contract and coverage. Active = must complete. Deferred = po
 - Why it matters: Cache hits drop total cost from ~$80 to ~$32. Difference between within-budget and over-budget.
 - Source: blueprint §2
 - Primary owner: M001/S03
-- Validation: unmapped
+- Validation: M001/S03 — all 6 prompt modules implemented in src/prompts/; static system prefix confirmed (no round/agent/inventory in system messages); act=84 tok (≤108, within 20% of 90-tok target), respond=66 tok (≤72, within 20% of 60-tok target); 23/23 pytest pass including token budget assertions. Cache hit rate measurement requires real API calls (S04 gate).
 
 ### R004 — Phase 0: Format Ablation + GM Sensitivity
 - Class: research-phase
@@ -166,7 +166,7 @@ Research capability contract and coverage. Active = must complete. Deferred = po
 
 - **Active:** 12 requirements
 - **Validated:** 0 (full validation pending Phase 0 + Phase 1 completion)
-- **Partially validated:** 2 (R002, R011 — schema and engine proven; accepted-trade path and pipeline not yet)
+- **Partially validated:** 3 (R002, R003, R011 — R003 templates + token budgets proven; cache hit rate pending S04; R002/R011 accepted-trade path and pipeline pending)
 - **Deferred:** 3
 - **Out of scope:** 3
 - **Total:** 18
@@ -177,7 +177,7 @@ Research capability contract and coverage. Active = must complete. Deferred = po
 |---|---|---|---|---|
 | R001 | core-infrastructure | active | M001/S01 | M001/S01 ✅ |
 | R002 | core-infrastructure | active | M001/S02 | M001/S02 partial — engine + schema ✅; accepted-trade path pending (D037) |
-| R003 | performance-optimization | active | M001/S03 | unmapped |
+| R003 | performance-optimization | active | M001/S03 | M001/S03 partial — templates + token budgets ✅; cache hit rate pending (S04) |
 | R004 | research-phase | active | M001/S04 | unmapped |
 | R005 | research-phase | active | M002 | unmapped |
 | R006 | research-phase | active | M003/S01 | unmapped |

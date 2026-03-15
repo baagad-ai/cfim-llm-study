@@ -99,21 +99,29 @@ class GameConfig(BaseModel):
 
         Supported names:
           - "mistral-mono"          all 6 agents on mistral-small-2506
-          - "phase0"                placeholder — same as mistral-mono for now
+          - "llama-mono"            all 6 agents on llama-3.3-70b-versatile
+          - "deepseek-mono"         all 6 agents on deepseek-chat
+          - "gemini-mono"           all 6 agents on gemini-2.5-flash
+          - "phase0"                4-family mix: 2×llama + 2×deepseek + 1×gemini + 1×mistral
           - "pairwise-{A}-{B}"      3 agents of family A + 3 agents of family B
                                     e.g. "pairwise-llama-mistral"
         """
         if name == "mistral-mono":
-            return cls._mistral_mono()
+            return cls._mono("mistral")
+        if name == "llama-mono":
+            return cls._mono("llama")
+        if name == "deepseek-mono":
+            return cls._mono("deepseek")
+        if name == "gemini-mono":
+            return cls._mono("gemini")
         if name == "phase0":
-            # TBD mix — placeholder using mistral-mono until phase0 model
-            # selection is finalised in S03.
-            return cls._mistral_mono(config_name="phase0")
+            return cls._mixed_4family()
         if name.startswith("pairwise-"):
             return cls._pairwise(name)
         raise ValueError(
             f"Unknown config name: {name!r}. "
-            "Valid names: 'mistral-mono', 'phase0', 'pairwise-{{A}}-{{B}}'"
+            "Valid names: 'mistral-mono', 'llama-mono', 'deepseek-mono', "
+            "'gemini-mono', 'phase0', 'pairwise-{{A}}-{{B}}'"
         )
 
     # ------------------------------------------------------------------
@@ -121,12 +129,35 @@ class GameConfig(BaseModel):
     # ------------------------------------------------------------------
 
     @classmethod
-    def _mistral_mono(cls, config_name: str = "mistral-mono") -> "GameConfig":
+    def _mono(cls, family: str) -> "GameConfig":
+        """Build a 6-agent mono config where all agents use the same family."""
+        if family not in _MODEL_REGISTRY:
+            raise ValueError(
+                f"Unknown model family {family!r}. "
+                f"Known families: {list(_MODEL_REGISTRY)}"
+            )
+        agents = [_make_agent_entry(f"a{i}", family) for i in range(6)]
+        return cls(
+            config_name=f"{family}-mono",
+            num_agents=6,
+            num_rounds=25,
+            gm_model=_DEFAULT_GM_MODEL,
+            agent_models=agents,
+        )
+
+    @classmethod
+    def _mixed_4family(cls) -> "GameConfig":
+        """Build the phase0 4-family mix: 2×llama + 2×deepseek + 1×gemini + 1×mistral."""
         agents = [
-            _make_agent_entry(f"a{i}", "mistral") for i in range(6)
+            _make_agent_entry("a0", "llama"),
+            _make_agent_entry("a1", "llama"),
+            _make_agent_entry("a2", "deepseek"),
+            _make_agent_entry("a3", "deepseek"),
+            _make_agent_entry("a4", "gemini"),
+            _make_agent_entry("a5", "mistral"),
         ]
         return cls(
-            config_name=config_name,
+            config_name="phase0",
             num_agents=6,
             num_rounds=25,
             gm_model=_DEFAULT_GM_MODEL,

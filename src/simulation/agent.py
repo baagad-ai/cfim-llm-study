@@ -10,11 +10,14 @@ call-site contract.
 
 from __future__ import annotations
 
-import json
 import logging
 from dataclasses import dataclass, field
 
 from src.simulation.llm_router import call_llm
+from src.prompts.agent_action import build_act_messages
+from src.prompts.trade_response import build_respond_messages
+from src.prompts.reflection import build_reflect_messages
+from src.prompts.json_utils import parse_agent_response
 
 logger = logging.getLogger(__name__)
 
@@ -77,28 +80,37 @@ class Agent:
         Returns:
             Parsed action dict. Always contains "action_type" key.
         """
-        messages = _build_act_messages(self, round_num, game_state)
-        try:
-            content, _cost = call_llm(
-                model_string=self.model_string,
-                provider=self.provider,
-                messages=messages,
-                mock_response=mock_response,
-            )
-            action = json.loads(content)
-            if "action_type" not in action:
-                logger.warning(
-                    "agent %s round %d: action missing action_type, hoarding",
-                    self.agent_id, round_num,
-                )
-                return {"action_type": "hoard"}
-            return action
-        except (json.JSONDecodeError, ValueError, TypeError) as exc:
+        messages = build_act_messages(
+            agent_id=self.agent_id,
+            model_family=self.model_family,
+            round_num=round_num,
+            inventory=self.inventory,
+            vp=self.vp,
+            buildings_built=self.buildings_built,
+            all_agents_vp=game_state.get("vp", {}),
+            memory=self.memory[-3:],
+            buildings_config=game_state.get("buildings", {}),
+        )
+        content, _cost = call_llm(
+            model_string=self.model_string,
+            provider=self.provider,
+            messages=messages,
+            mock_response=mock_response,
+        )
+        action = parse_agent_response(content, {})
+        if action is None:
             logger.warning(
-                "agent %s round %d: JSON parse failed (%s), hoarding",
-                self.agent_id, round_num, exc,
+                "agent %s round %d: parse_agent_response returned None, hoarding",
+                self.agent_id, round_num,
             )
             return {"action_type": "hoard"}
+        if "action_type" not in action:
+            logger.warning(
+                "agent %s round %d: action missing action_type, hoarding",
+                self.agent_id, round_num,
+            )
+            return {"action_type": "hoard"}
+        return action
 
     def respond_to_trade(
         self,
@@ -128,31 +140,36 @@ class Agent:
         Returns:
             Response dict with "accepted" (bool) and optional "counter" (dict|None).
         """
-        messages = _build_respond_messages(self, proposal, game_state)
-        try:
-            content, _cost = call_llm(
-                model_string=self.model_string,
-                provider=self.provider,
-                messages=messages,
-                mock_response=mock_response,
-            )
-            response = json.loads(content)
-            if "accepted" not in response:
-                logger.warning(
-                    "agent %s: trade response missing 'accepted' field, declining",
-                    self.agent_id,
-                )
-                return {"accepted": False, "counter": None}
-            # Normalise counter: ensure it's a dict or None.
-            if "counter" not in response:
-                response["counter"] = None
-            return response
-        except (json.JSONDecodeError, ValueError, TypeError) as exc:
+        messages = build_respond_messages(
+            agent_id=self.agent_id,
+            inventory=self.inventory,
+            vp=self.vp,
+            proposal=proposal,
+            buildings_config=game_state.get("buildings", {}),
+        )
+        content, _cost = call_llm(
+            model_string=self.model_string,
+            provider=self.provider,
+            messages=messages,
+            mock_response=mock_response,
+        )
+        response = parse_agent_response(content, {})
+        if response is None:
             logger.warning(
-                "agent %s: trade response JSON parse failed (%s), declining",
-                self.agent_id, exc,
+                "agent %s: trade response parse returned None, declining",
+                self.agent_id,
             )
             return {"accepted": False, "counter": None}
+        if "accepted" not in response:
+            logger.warning(
+                "agent %s: trade response missing 'accepted' field, declining",
+                self.agent_id,
+            )
+            return {"accepted": False, "counter": None}
+        # Normalise counter: ensure it's a dict or None.
+        if "counter" not in response:
+            response["counter"] = None
+        return response
 
     def reflect(
         self,
@@ -183,7 +200,13 @@ class Agent:
         Returns:
             The reflection text that was appended to self.memory.
         """
-        messages = _build_reflect_messages(self, round_num, game_state)
+        messages = build_reflect_messages(
+            agent_id=self.agent_id,
+            round_num=round_num,
+            inventory=self.inventory,
+            vp=self.vp,
+            memory=self.memory,
+        )
         content, _cost = call_llm(
             model_string=self.model_string,
             provider=self.provider,
@@ -193,92 +216,3 @@ class Agent:
         )
         self.memory.append(content)
         return content
-
-
-# ------------------------------------------------------------------
-# Prompt builders (module-level to keep Agent class body readable)
-# ------------------------------------------------------------------
-
-def _build_act_messages(agent: Agent, round_num: int, game_state: dict) -> list[dict]:
-    """Build the chat messages list for an act() call."""
-    memory_text = ""
-    if agent.memory:
-        memory_text = "\nYour past reflections:\n" + "\n".join(
-            f"- {m}" for m in agent.memory[-3:]  # last 3 reflections to stay compact
-        )
-
-    system = (
-        "You are playing Trade Island. Each round you choose one action: "
-        "trade resources with another agent, build a building, or hoard. "
-        "Respond ONLY with valid JSON."
-    )
-    user = (
-        f"Round {round_num}.\n"
-        f"Your agent: {agent.agent_id}.\n"
-        f"Your inventory: {json.dumps(agent.inventory)}.\n"
-        f"Your VP: {agent.vp}.\n"
-        f"Buildings built: {agent.buildings_built}.\n"
-        f"Game state: {json.dumps(game_state)}."
-        f"{memory_text}\n"
-        "Choose an action. Respond with JSON:\n"
-        '{"action_type": "trade"|"build"|"hoard", '
-        '"target": str|null, '
-        '"give": {resource: qty}|null, '
-        '"want": {resource: qty}|null, '
-        '"building": str|null}'
-    )
-    return [
-        {"role": "system", "content": system},
-        {"role": "user", "content": user},
-    ]
-
-
-def _build_respond_messages(
-    agent: Agent, proposal: dict, game_state: dict
-) -> list[dict]:
-    """Build the chat messages list for a respond_to_trade() call."""
-    system = (
-        "You are playing Trade Island. You received a trade proposal. "
-        "Decide whether to accept, decline, or counter. "
-        "Respond ONLY with valid JSON."
-    )
-    user = (
-        f"Your agent: {agent.agent_id}.\n"
-        f"Your inventory: {json.dumps(agent.inventory)}.\n"
-        f"Trade proposal: {json.dumps(proposal)}.\n"
-        f"Game state: {json.dumps(game_state)}.\n"
-        "Respond with JSON:\n"
-        '{"accepted": true|false, "counter": {resource: qty}|null}'
-    )
-    return [
-        {"role": "system", "content": system},
-        {"role": "user", "content": user},
-    ]
-
-
-def _build_reflect_messages(
-    agent: Agent, round_num: int, game_state: dict
-) -> list[dict]:
-    """Build the chat messages list for a reflect() call."""
-    system = (
-        "You are playing Trade Island. Reflect on your strategy so far. "
-        "Give a concise summary (2-3 sentences) of what is working and what to change."
-    )
-    past = ""
-    if agent.memory:
-        past = "\nYour previous reflections:\n" + "\n".join(
-            f"- {m}" for m in agent.memory
-        )
-    user = (
-        f"Round {round_num} just ended.\n"
-        f"Your agent: {agent.agent_id}.\n"
-        f"Your VP: {agent.vp}.\n"
-        f"Your inventory: {json.dumps(agent.inventory)}.\n"
-        f"Game state: {json.dumps(game_state)}."
-        f"{past}\n"
-        "Write a brief strategic reflection."
-    )
-    return [
-        {"role": "system", "content": system},
-        {"role": "user", "content": user},
-    ]

@@ -47,8 +47,8 @@ OSF registration: pending (M001/S05 task — must complete before Phase 1).
 
 ## Current State
 
-**Active milestone:** M001/S03 — Prompt Templates + Tolerant Parser (next)
-**Completed:** S01 (LiteLLM routing) ✅, S02 (Trade Island engine) ✅
+**Active milestone:** M001/S04 — Phase 0 Calibration (30 games) (next)
+**Completed:** S01 (LiteLLM routing) ✅, S02 (Trade Island engine) ✅, S03 (Prompt Templates + Tolerant Parser) ✅
 **Games completed:** 1 / 335 (1 calibration run — Mistral-mono, 25 rounds, $0.00)
 **Cost burned:** $0.0008 / $80.00
 
@@ -66,8 +66,8 @@ OSF registration: pending (M001/S05 task — must complete before Phase 1).
 - 🔄 **M001: Infrastructure + Phase 0** — Setup, calibration, format ablation (30 games)
   - ✅ S01: LiteLLM + Environment (complete)
   - ✅ S02: Trade Island Engine (complete — custom loop, not Concordia; see D023)
-  - 🔄 S03: Prompt Templates + Tolerant Parser (next)
-  - ⬜ S04: Phase 0 calibration games
+  - ✅ S03: Prompt Templates + Tolerant Parser (complete — 23/23 tests pass; phase0 config real 4-family mix)
+  - 🔄 S04: Phase 0 calibration games (next)
   - ⬜ S05: OSF pre-registration (blocks M002)
 - ⬜ **M002: Phase 1 Monoculture** — 120 games (4 families × 30)
 - ⬜ **M003: Phase 2 Pairwise + Persona** — 185 games
