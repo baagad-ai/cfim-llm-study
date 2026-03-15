@@ -289,6 +289,168 @@
       "toolCalls": 0,
       "assistantMessages": 7,
       "userMessages": 0
+    },
+    {
+      "type": "research-slice",
+      "id": "M001/S04",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773576013584,
+      "finishedAt": 1773576596789,
+      "tokens": {
+        "input": 44,
+        "output": 18145,
+        "cacheRead": 3841351,
+        "cacheWrite": 88792,
+        "total": 3948332
+      },
+      "cost": 1.7576823000000004,
+      "toolCalls": 0,
+      "assistantMessages": 42,
+      "userMessages": 0
+    },
+    {
+      "type": "plan-slice",
+      "id": "M001/S04",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773576596791,
+      "finishedAt": 1773576965884,
+      "tokens": {
+        "input": 22,
+        "output": 16931,
+        "cacheRead": 1493548,
+        "cacheWrite": 64002,
+        "total": 1574503
+      },
+      "cost": 0.9421029,
+      "toolCalls": 0,
+      "assistantMessages": 20,
+      "userMessages": 0
+    },
+    {
+      "type": "execute-task",
+      "id": "M001/S04/T01",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773576965885,
+      "finishedAt": 1773577509301,
+      "tokens": {
+        "input": 47,
+        "output": 15568,
+        "cacheRead": 2759114,
+        "cacheWrite": 56390,
+        "total": 2831119
+      },
+      "cost": 1.2728577,
+      "toolCalls": 0,
+      "assistantMessages": 45,
+      "userMessages": 0
+    },
+    {
+      "type": "execute-task",
+      "id": "M001/S04/T02",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773577509303,
+      "finishedAt": 1773577989044,
+      "tokens": {
+        "input": 91,
+        "output": 17210,
+        "cacheRead": 5336084,
+        "cacheWrite": 53431,
+        "total": 5406816
+      },
+      "cost": 2.05961445,
+      "toolCalls": 0,
+      "assistantMessages": 89,
+      "userMessages": 0
+    },
+    {
+      "type": "execute-task",
+      "id": "M001/S04/T03",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773577989046,
+      "finishedAt": 1773583456425,
+      "tokens": {
+        "input": 34,
+        "output": 22343,
+        "cacheRead": 2412657,
+        "cacheWrite": 99885,
+        "total": 2534919
+      },
+      "cost": 1.4336128499999996,
+      "toolCalls": 0,
+      "assistantMessages": 32,
+      "userMessages": 1
+    },
+    {
+      "type": "execute-task",
+      "id": "M001/S04/T04",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773583456426,
+      "finishedAt": 1773584839962,
+      "tokens": {
+        "input": 111,
+        "output": 40233,
+        "cacheRead": 10173668,
+        "cacheWrite": 112996,
+        "total": 10327008
+      },
+      "cost": 4.079663399999999,
+      "toolCalls": 0,
+      "assistantMessages": 105,
+      "userMessages": 1
+    },
+    {
+      "type": "execute-task",
+      "id": "M001/S04/T05",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773584839964,
+      "finishedAt": 1773590967723,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "total": 0
+      },
+      "cost": 0,
+      "toolCalls": 0,
+      "assistantMessages": 0,
+      "userMessages": 0
+    },
+    {
+      "type": "execute-task",
+      "id": "M001/S07/T01",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773590967724,
+      "finishedAt": 1773602770461,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "total": 0
+      },
+      "cost": 0,
+      "toolCalls": 0,
+      "assistantMessages": 0,
+      "userMessages": 0
+    },
+    {
+      "type": "execute-task",
+      "id": "M001/S01/T01",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773602770462,
+      "finishedAt": 1773603320565,
+      "tokens": {
+        "input": 60,
+        "output": 29427,
+        "cacheRead": 3973470,
+        "cacheWrite": 65170,
+        "total": 4068127
+      },
+      "cost": 1.8780135000000004,
+      "toolCalls": 0,
+      "assistantMessages": 58,
+      "userMessages": 0
     }
   ]
 }
