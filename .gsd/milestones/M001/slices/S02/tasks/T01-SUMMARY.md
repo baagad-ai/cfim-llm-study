@@ -3,95 +3,110 @@ id: T01
 parent: S02
 milestone: M001
 provides:
-  - pytest, polars, scipy, statsmodels, scikit-learn, networkx, seaborn installed and importable
-  - GameConfig Pydantic model with from_name() factory (mistral-mono, phase0, pairwise-{A}-{B})
-  - GameLogger JSONL writer with log(), flush(), log_round_end() — "vp" field name enforced
-  - requirements-lock.txt updated with exact pinned versions and sentence-transformers note
+  - src/prompts/rne_prompts.py with build_system_prompt(condition, framing) — all 9 variants cached
+  - tests/test_rne_prompts.py — 42 tests covering all variants, budget, errors, determinism, content
+  - RNERunner wired to call build_system_prompt once at session start and thread through all call_llm calls
 key_files:
-  - src/simulation/config.py
-  - src/simulation/logger.py
-  - src/simulation/__init__.py
-  - requirements-lock.txt
+  - src/prompts/rne_prompts.py
+  - src/simulation/rne_game.py
+  - tests/test_rne_prompts.py
 key_decisions:
-  - buffering=1 (line buffering) on the logger file handle so each log() call is immediately readable on disk without explicit flush() — supports crash-resume and real-time jq inspection
-  - pairwise config parses "pairwise-{A}-{B}" by splitting on "-" (family names must be single words); agents a0-a2 are family A, a3-a5 are family B
-  - phase0 is a mistral-mono placeholder — documented in code with a comment pointing to S03 for real model mix
-  - sentence-transformers excluded; compatibility with Python 3.14 unverified — commented in requirements-lock.txt with S03/S04 flag
+  - D058: Three-part composition (framing_intro + condition_core + shared _MECHANICS). Single prompt used for both agents. Session prompt built once, threaded as system_prompt kwarg.
 patterns_established:
-  - Named config factory pattern: GameConfig.from_name(name) as the single entry point for all config variants; unknown names raise ValueError with valid options listed
-  - GameLogger as append-only context manager; flush()/fsync() available for explicit durability checkpoints
-  - "vp" is the canonical field name for victory points throughout the codebase
+  - build_system_prompt is @functools.lru_cache — repeated calls are free; same object returned on cache hit
+  - _build_round_messages accepts optional system_prompt kwarg for injected pre-built prompt; falls back to _system_prompt() for backward compat
+  - All respond call sites in run_session use session_system_prompt directly (no re-build)
 observability_surfaces:
-  - Every log() line includes ts (ISO8601 UTC), event, game_id — grep/jq-friendly
-  - flush() + fsync() available for checkpoint writes between rounds
-duration: ~20 min
+  - All 9 (condition × framing) variants verified at module import time via explicit call in test suite
+  - Token estimate (len//4) verified ≤ 300 for all 9 variants (range: 241–278 tokens)
+duration: ~30m
 verification_result: passed
 completed_at: 2026-03-15
 blocker_discovered: false
 ---
 
-# T01: Install deps, write config.py and logger.py
+# T01: System prompt variants — 3 conditions × 3 framings
 
-**Installed 7 analysis packages, implemented GameConfig with named-config factory, and GameLogger with enforced "vp" field name — all three plan verification commands pass.**
+**Added `build_system_prompt(condition, framing)` with 9 LRU-cached variants and wired it as the sole system-message source in RNERunner.**
 
 ## What Happened
 
-Activated the Python 3.14.3 venv and installed: pytest 9.0.2, polars 1.39.0, scipy 1.17.1, statsmodels 0.14.6, scikit-learn 1.8.0, networkx 3.6.1, seaborn 0.13.2. Froze to requirements-lock.txt and appended a comment documenting why sentence-transformers was excluded (torch/Python 3.14 wheel compatibility unverified; flagged for S03/S04 boundary check).
+Created `src/prompts/rne_prompts.py` with a three-part composition pattern:
 
-`GameConfig` uses Pydantic v2 BaseModel with a `from_name()` class method. The pairwise factory parses `"pairwise-{A}-{B}"` by splitting on `-`; agents a0–a2 take family A, a3–a5 take family B. The `_MODEL_REGISTRY` dict maps family short-names to litellm model strings and provider kwargs — keeps config self-contained and easy to extend.
+- `_FRAMING_INTRO[framing]` — 3 framing variants (neutral/social/strategic)
+- `_CONDITION_CORE[condition]` — 3 condition descriptions (A=coordination, B=mixed-motive, C=asymmetric power)
+- `_MECHANICS` — shared static block (resources, values, decay rate, round count, JSON output format)
 
-`GameLogger` opens the JSONL file with `buffering=1` (line-buffered), meaning each `log()` call lands on disk immediately without requiring an explicit `flush()`. The `flush()` method still exists and calls `fsync()` for guaranteed durability at checkpoint boundaries. `log_round_end()` emits one line per agent with the flat schema `{game_id, model_family, round, agent_id, vp}`.
+`build_system_prompt(condition, framing)` assembles them as `f"{intro}\n\n{cond_desc}\n\n{_MECHANICS}"`, validates both args against frozensets, and is decorated with `@functools.lru_cache(maxsize=None)`.
 
-One issue caught during verification: the original `open()` call used default block buffering, which caused the exact plan verification command (which reads the file without calling `flush()`) to see an empty file. Fixed by switching to `buffering=1`.
+In `rne_game.py`:
+- Added `from src.prompts.rne_prompts import build_system_prompt`
+- Called `session_system_prompt = build_system_prompt(config.condition, config.prompt_framing)` once at session start (before `logger.log("game_start", ...)`)
+- Updated `_build_round_messages` signature to accept `system_prompt: str | None = None`; when provided, uses it directly instead of calling `_system_prompt()`
+- Both respond call sites (`a1_respond` and `a0_respond`) now use `session_system_prompt` instead of `_system_prompt(config, agent_id)`
+
+Created `tests/test_rne_prompts.py` with 42 tests across 4 classes:
+- `TestBuildSystemPromptAllVariants` — 18 parametrized tests (non-empty + token budget for all 9 combos)
+- `TestBuildSystemPromptDeterminism` — 10 tests (determinism + cache identity)
+- `TestBuildSystemPromptErrors` — 6 tests (unknown condition, framing, both, empty strings, lowercase)
+- `TestBuildSystemPromptContent` — 8 content spot-checks (coordination language, defect/exploit, power, JSON, decay, framing language)
 
 ## Verification
 
-All three plan verification commands pass verbatim:
-
 ```
-# imports
-python -c "import pytest, polars, scipy, statsmodels, sklearn, networkx, seaborn; print('all ok')"
-→ all ok
-
-# config
-python -c "from src.simulation.config import GameConfig; c = GameConfig.from_name('mistral-mono'); assert c.num_rounds == 25; assert len(c.agent_models) == 6; print('config ok')"
-→ config ok
-
-# logger
-python -c "from src.simulation.logger import GameLogger; import tempfile, json, pathlib; d=pathlib.Path(tempfile.mkdtemp()); lg=GameLogger('test123', d); lg.log_round_end(1, [{'agent_id':'a0','model_family':'mistral','vp':3}]); lines=[json.loads(l) for l in (d/'game.jsonl').read_text().splitlines()]; assert lines[0]['vp']==3; assert lines[0]['event']=='round_end'; print('logger ok')"
-→ logger ok
+pytest tests/test_rne.py tests/test_rne_prompts.py -v
+# → 89 passed, 1 warning
 ```
 
-Additional checks confirmed:
-- `pairwise-llama-mistral` → 3 llama agents + 3 mistral agents ✓
-- All 3 buildings (Market, Granary, Tower) present with vp=3 ✓
-- `from src.simulation import GameConfig, GameLogger` works ✓
-- `requirements-lock.txt` tail contains sentence-transformers exclusion comment ✓
+Task-plan verification script:
+```
+A/neutral: 241 tok ok
+A/social: 262 tok ok
+A/strategic: 250 tok ok
+B/neutral: 257 tok ok
+B/social: 278 tok ok
+B/strategic: 266 tok ok
+C/neutral: 258 tok ok
+C/social: 278 tok ok
+C/strategic: 266 tok ok
+```
+
+All must-haves confirmed:
+- ✅ Non-empty string for all 9 combinations (min 241 chars / 60 tokens)
+- ✅ ValueError on unknown condition (`"X"`, `""`, `"a"`)
+- ✅ ValueError on unknown framing (`"aggressive"`, `""`)
+- ✅ Deterministic — same object returned from cache (identity test passes)
+- ✅ All variants ≤ 300 tokens (range: 241–278 tok)
+- ✅ RNERunner passes system prompt in messages list to call_llm (wiring confirmed via mock 3-round run)
 
 ## Diagnostics
 
 ```bash
-# Inspect any game.jsonl in real-time
-jq '.event' data/raw/*/game.jsonl | sort | uniq -c
+# Inspect all 9 system prompts
+python3 -c "
+from src.prompts.rne_prompts import build_system_prompt
+for c in ('A','B','C'):
+    for f in ('neutral','social','strategic'):
+        print(f'=== {c}/{f} ===')
+        print(build_system_prompt(c, f))
+        print()
+"
 
-# Verify vp field name in output
-grep '"vp"' data/raw/*/game.jsonl | head -1
-
-# Check config is correct before a run
-python -c "from src.simulation.config import GameConfig; import json; c = GameConfig.from_name('mistral-mono'); print(json.dumps(c.model_dump(), indent=2))"
+# Verify cache info
+python3 -c "
+from src.prompts.rne_prompts import build_system_prompt
+for c in ('A','B','C'):
+    for f in ('neutral','social','strategic'):
+        build_system_prompt(c, f)
+print(build_system_prompt.cache_info())
+# CacheInfo(hits=0, misses=9, maxsize=None, currsize=9)
+"
 ```
 
 ## Deviations
 
-- Added `buffering=1` to the logger file open call (not in original plan spec). Required to make each `log()` immediately readable on disk without explicit `flush()`. The plan verification command reads the file without flushing, so this was necessary for correctness.
+None. Plan followed exactly. Note: single system prompt used for both Agent A and Agent B in a session (not two separate prompts). The placeholder `_system_prompt()` referenced "Agent A" and "Agent B" role distinctions per-agent; the new prompt drops that in favor of condition-level game mechanics description. T02 (round messages + disclosure injection) will handle per-agent role and inventory context in the user message, which is the right architectural boundary.
 
 ## Known Issues
 
-None.
-
-## Files Created/Modified
-
-- `src/simulation/config.py` — GameConfig Pydantic model with from_name() factory; _MODEL_REGISTRY for model string lookup
-- `src/simulation/logger.py` — GameLogger with log(), flush(), close(), log_round_end(); line-buffered file handle
-- `src/simulation/__init__.py` — exports GameConfig, GameLogger
-- `requirements-lock.txt` — full pip freeze output + sentence-transformers exclusion comment
+None. The placeholder `_system_prompt()` function remains in `rne_game.py` for backward compatibility but is no longer called in any live code path during `run_session()`. T02 or T03 can remove it once the full prompt architecture is in place.

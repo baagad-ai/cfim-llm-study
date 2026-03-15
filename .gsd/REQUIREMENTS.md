@@ -38,8 +38,8 @@ Design authority: `.gsd/SIMULATION_DESIGN.md`.
 - Source: SIMULATION_DESIGN.md §6
 - Primary owning slice: M001/S02
 - Supporting slices: none
-- Validation: unmapped
-- Notes: `json_utils.py` (tolerant parser) exists from Trade Island work. RNE-specific prompt functions need to be written.
+- Validation: validated
+- Notes: `build_system_prompt` (9 LRU-cached variants, all ≤300 tok), `build_round_messages` (disclosure injection in user message only, history truncation), `parse_rne_response` (4-strategy tolerant parser) — all implemented and tested. 118 tests pass. Real smoke run confirms prompt generates valid LLM exchanges at $0.0072/session.
 
 ### R004 — CFIM Session Configuration (RNEConfig)
 - Class: core-infrastructure
@@ -91,10 +91,10 @@ Design authority: `.gsd/SIMULATION_DESIGN.md`.
 - Description: `scripts/run_rne.py --family-a FAMILY --family-b FAMILY --condition A|B|C --disclosure blind|disclosed --framing neutral|social|strategic --games N [--mock]` runs N sessions and writes all outputs. `--mock` flag enables no-API testing.
 - Why it matters: The CLI is the interface to the engine for all 3,360 sessions. Manual invocation and batch scripts both use it.
 - Source: SIMULATION_DESIGN.md §9 (scripts/)
-- Primary owning slice: M001/S01 (T03)
+- Primary owning slice: M001/S02 (T03)
 - Supporting slices: none
-- Validation: unmapped
-- Notes: T03 scope.
+- Validation: validated
+- Notes: Implemented in M001/S02/T03. Smoke-verified: real Mistral×Llama 35-round session completes, writes game.jsonl + summary.json + metadata.json, cost $0.0072 ≤ $0.05. `--mock` mode runs zero-cost sessions.
 
 ### R009 — OSF Pre-Registration
 - Class: research-integrity
@@ -222,12 +222,12 @@ Design authority: `.gsd/SIMULATION_DESIGN.md`.
 |---|---|---|---|---|
 | R001 | core-infrastructure | active | M001/S01 | **validated** — 7-family routing tested, registry sync asserted |
 | R002 | core-infrastructure | active | M001/S01 (T02) | unmapped — T02 next |
-| R003 | core-infrastructure | active | M001/S02 | unmapped |
+| R003 | core-infrastructure | active | M001/S02 | **validated** — 118 prompt tests pass; 9 variants ≤300 tok; disclosure injection + parser verified; smoke run at $0.0072 |
 | R004 | core-infrastructure | active | M001/S01 (T01) | **validated** — RNEConfig + field_validator + 31 tests pass |
 | R005 | research-phase | active | M001/S01 (T02) | unmapped |
 | R006 | research-phase | active | M001/S03 | unmapped |
 | R007 | data-management | active | M001/S01 (T02) | unmapped |
-| R008 | operability | active | M001/S01 (T03) | unmapped |
+| R008 | operability | active | M001/S02 (T03) | **validated** — CLI smoke-verified; game.jsonl + summary.json + metadata.json written; mock mode works |
 | R009 | research-integrity | active | M001/S04 | partial — stubs + doc committed; OSF submission pending |
 | R010 | research-phase | active | M002 | unmapped |
 | R011 | research-phase | active | M003/S01 | unmapped |
@@ -243,9 +243,9 @@ Design authority: `.gsd/SIMULATION_DESIGN.md`.
 ## Coverage Summary
 
 - **Active:** 13 requirements
-- **Validated:** 2 (R001, R004)
+- **Validated:** 4 (R001, R003, R004, R008)
 - **Partially validated:** 2 (R009, R012)
-- **Unmapped active:** 9 (R002, R003, R005–R008, R010, R011, R013)
+- **Unmapped active:** 7 (R002, R005–R007, R010, R011, R013)
 - **Deferred:** 3
 - **Out of scope:** 3
 - **Total:** 19

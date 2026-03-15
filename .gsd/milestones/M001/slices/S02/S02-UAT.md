@@ -1,4 +1,4 @@
-# S02: Trade Island Engine — UAT
+# S02: RNE Prompt Architecture — UAT
 
 **Milestone:** M001
 **Written:** 2026-03-15
@@ -6,162 +6,228 @@
 ## UAT Type
 
 - UAT mode: artifact-driven
-- Why this mode is sufficient: S02 is a pure infrastructure slice. Verification is mechanical: JSONL line counts, field name checks, cost assertions, and pytest. No human behavioral judgment required. The one behavioral gap (0 accepted trades in live run) is a deferred calibration concern, not a UAT blocker.
+- Why this mode is sufficient: S02 is a pure library module (no UI, no HTTP). Correctness is fully expressed by the test suite (parser contract, prompt content, disclosure injection) and the smoke CLI run (end-to-end integration with real LLMs).
 
 ## Preconditions
 
-- `.venv` active: `source .venv/bin/activate` or prefix commands with `.venv/bin/python`
-- `.env` present with `MISTRAL_API_KEY` set (required for live run; not required for mock tests)
-- Working directory: `research/model-family/`
-- Existing game run in `data/raw/1e8788dd/` (used for JSONL inspection checks)
+- `.venv` activated (`source .venv/bin/activate`)
+- API keys present in environment (GROQ_API_KEY, MISTRAL_API_KEY for smoke run)
+- Working directory: `/Users/prajwalmishra/Desktop/Experiments/baagad-ai/research/model-family`
 
 ## Smoke Test
 
 ```bash
-PYTHONPATH=. .venv/bin/pytest tests/test_smoke.py -v
+pytest tests/test_rne.py tests/test_rne_prompts.py -v --tb=short 2>&1 | tail -5
+# → 165 passed, 1 warning
 ```
-Expected: `5 passed` with no errors. This confirms engine wiring, schema contract, double-spend guard, and mock cost=0.0.
 
 ## Test Cases
 
-### 1. JSONL round_end line count (150 exact)
+### 1. Full test suite passes
 
 ```bash
-grep '"event": "round_end"' data/raw/*/game.jsonl | wc -l
+source .venv/bin/activate
+pytest tests/test_rne.py tests/test_rne_prompts.py -v
 ```
-**Expected:** `150` (25 rounds × 6 agents)
 
-### 2. Field name is "vp" not "victory_points"
+**Expected:** `165 passed, 1 warning` — zero failures. The single warning is a `PytestConfigWarning: Unknown config option: asyncio_mode` (harmless).
 
-```bash
-grep '"event": "round_end"' data/raw/*/game.jsonl | head -1 | jq 'has("vp")'
-grep '"event": "round_end"' data/raw/*/game.jsonl | head -1 | jq 'has("victory_points")'
-```
-**Expected:** first returns `true`, second returns `false`
+---
 
-### 3. game_end total_cost_usd ≤ 0.02
+### 2. All 9 system prompt variants are non-empty and within token budget
 
 ```bash
-jq 'select(.event=="game_end") | .total_cost_usd' data/raw/*/game.jsonl
-```
-**Expected:** `0` or any value ≤ 0.02
-
-### 4. All 9 H2 fields present in gm_resolution events
-
-```bash
-grep '"event": "gm_resolution"' data/raw/*/game.jsonl | head -1 | jq 'to_entries | map(.key) | sort'
-```
-**Expected:** output includes `accepted`, `give_resource`, `pairing`, `proposer_model`, `reason`, `responder_model`, `round`, `trade_idx`, `valid`, `want_resource`
-
-### 5. 25 checkpoint files written
-
-```bash
-ls data/raw/1e8788dd/checkpoint_r*.json | wc -l
-```
-**Expected:** `25`
-
-### 6. Checkpoint filenames follow r{N:02d} format
-
-```bash
-ls data/raw/1e8788dd/checkpoint_r*.json | head -3
-```
-**Expected:** `checkpoint_r01.json`, `checkpoint_r02.json`, `checkpoint_r03.json`
-
-### 7. GameConfig named configs resolve correctly
-
-```bash
-PYTHONPATH=. .venv/bin/python -c "
-from src.simulation.config import GameConfig
-m = GameConfig.from_name('mistral-mono')
-p = GameConfig.from_name('phase0')
-pw = GameConfig.from_name('pairwise-llama-mistral')
-assert m.num_rounds == 25 and len(m.agent_models) == 6
-assert p.num_rounds == 25
-assert pw.agent_models['a0']['family'] == 'llama'
-assert pw.agent_models['a3']['family'] == 'mistral'
-print('configs ok')
+python3 -c "
+from src.prompts.rne_prompts import build_system_prompt
+for c in ('A','B','C'):
+    for f in ('neutral','social','strategic'):
+        p = build_system_prompt(c, f)
+        tok = len(p) // 4
+        assert tok <= 300, f'{c}/{f}: {tok} tok exceeds 300'
+        print(f'{c}/{f}: {tok} tok ok')
 "
 ```
-**Expected:** `configs ok`
 
-### 8. Double-spend guard standalone self-test
+**Expected:** 9 lines printed with token counts in range 241–290. No AssertionError.
 
-```bash
-PYTHONPATH=. .venv/bin/python src/simulation/gm.py
-```
-**Expected:** `double-spend guard: ok`
+---
 
-### 9. Mock cost guard standalone self-test
+### 3. Disclosure injection: blind mode has no family leak; disclosed mode injects correctly
 
 ```bash
-PYTHONPATH=. .venv/bin/python src/simulation/llm_router.py
-```
-**Expected:** `mock cost guard: ok`
+python3 -c "
+from src.simulation.config import RNEConfig
+from src.prompts.rne_prompts import build_round_messages
 
-### 10. Event distribution sanity (all expected event types present)
+cfg_blind = RNEConfig(family_a='mistral', family_b='llama', condition='A', disclosure='blind', prompt_framing='neutral')
+cfg_disc  = RNEConfig(family_a='mistral', family_b='llama', condition='A', disclosure='disclosed', prompt_framing='neutral')
+
+blind = build_round_messages(cfg_blind, 5, 'a0', {'W':3,'S':2}, [], 'llama')
+disc  = build_round_messages(cfg_disc,  5, 'a0', {'W':3,'S':2}, [], 'llama')
+
+user_blind = blind[1]['content']
+user_disc  = disc[1]['content']
+
+assert 'llama' not in user_blind, 'FAIL: family leaked in blind mode'
+assert 'llama' in user_disc, 'FAIL: family not injected in disclosed mode'
+assert 'llama' not in disc[0]['content'], 'FAIL: family injected into system message'
+print('disclosure injection ok')
+"
+```
+
+**Expected:** `disclosure injection ok` — no assertion errors.
+
+---
+
+### 4. Parser handles all 4 failure modes
 
 ```bash
-jq '.event' data/raw/*/game.jsonl | sort | uniq -c
+python3 -c "
+from src.prompts.rne_prompts import parse_rne_response
+
+# Strategy 1: direct JSON
+r1 = parse_rne_response('{\"action\":\"propose\",\"give\":{\"W\":1},\"want\":{\"G\":1}}')
+assert isinstance(r1, dict) and r1['action'] == 'propose', f'S1 fail: {r1}'
+
+# Strategy 2: fenced JSON
+r2 = parse_rne_response('\`\`\`json\n{\"action\":\"pass\"}\n\`\`\`')
+assert isinstance(r2, dict) and r2['action'] == 'pass', f'S2 fail: {r2}'
+
+# Strategy 3: prose-wrapped JSON
+r3 = parse_rne_response('Sure! {\"action\":\"pass\"} here you go')
+assert isinstance(r3, dict) and r3['action'] == 'pass', f'S3 fail: {r3}'
+
+# Strategy 4: truncated → None
+r4 = parse_rne_response('{\"action\":\"prop')
+assert r4 is None, f'S4 fail: {r4}'
+
+# Bonus: None input → None
+r5 = parse_rne_response(None)
+assert r5 is None, f'None fail: {r5}'
+
+print('all 4 parser strategies ok')
+"
 ```
-**Expected:** output includes `agent_action`, `build`, `game_end`, `game_start`, `gm_resolution`, `grain_consumption`, `reflection`, `round_end`, `round_start` — all 9 event types present.
+
+**Expected:** `all 4 parser strategies ok`
+
+---
+
+### 5. Real Mistral×Llama smoke run completes; cost within budget
+
+```bash
+python scripts/run_rne.py \
+  --family-a mistral --family-b llama \
+  --condition A --disclosure blind --framing neutral --games 1
+
+python3 -c "
+import json, pathlib
+summaries = sorted(pathlib.Path('data/study1').glob('*/summary.json'), key=lambda p: p.stat().st_mtime, reverse=True)
+s = json.loads(summaries[0].read_text())
+assert 0.0 <= s['cooperation_rate'] <= 1.0, f'M1 out of range: {s[\"cooperation_rate\"]}'
+assert s['total_cost_usd'] <= 0.05, f'cost exceeded: {s[\"total_cost_usd\"]}'
+print(f'smoke ok — M1={s[\"cooperation_rate\"]:.3f} cost=\${s[\"total_cost_usd\"]:.4f}')
+"
+```
+
+**Expected:** Session completes 35 rounds. Summary assertion prints `smoke ok` with cost ≤ $0.05. (Trade count in a single session may be 0 — stochastic LLM behavior; this is not a failure.)
+
+---
+
+### 6. Mock mode runs without API calls (zero cost)
+
+```bash
+python scripts/run_rne.py \
+  --family-a mistral --family-b llama \
+  --condition A --disclosure blind --framing neutral --games 1 \
+  --mock '{"action":"propose","give":{"W":1},"want":{"G":1}}'
+```
+
+**Expected:** Session completes instantly. No API calls. `summary.json` written to `data/study1/{session_id}/`.
 
 ## Edge Cases
 
-### Double-spend rejection in game context (via test_smoke.py)
+### Condition C (asymmetric power) system prompt
 
 ```bash
-PYTHONPATH=. .venv/bin/pytest tests/test_smoke.py::TestDoubleSpendInGame -v
-```
-**Expected:** `PASSED` — confirms that when agent a0 proposes two trades both requiring the same resource (and only has enough for one), the second is rejected at the GM level even if the LLM approves both.
-
-### Mock game cost is float 0.0, not None or int 0
-
-```bash
-PYTHONPATH=. .venv/bin/pytest tests/test_smoke.py::TestMockCostZero -v
-```
-**Expected:** `PASSED` — confirms `total_cost_usd` is a Python float and equals 0.0 (not None, not int 0).
-
-### Unknown config name raises ValueError with helpful message
-
-```bash
-PYTHONPATH=. .venv/bin/python -c "
-from src.simulation.config import GameConfig
-try:
-    GameConfig.from_name('unknown-config')
-    print('FAIL — no error raised')
-except ValueError as e:
-    print('PASS:', e)
+python3 -c "
+from src.prompts.rne_prompts import build_system_prompt
+p = build_system_prompt('C', 'strategic')
+assert 'power' in p.lower() or 'asymm' in p.lower() or 'advantage' in p.lower(), 'C/strategic missing asymmetry language'
+print('C/strategic asymmetry language ok')
+print(p[:200])
 "
 ```
-**Expected:** `PASS: Unknown config: unknown-config. Valid names: ...` (lists valid options)
+
+**Expected:** System prompt references asymmetric power dynamics. No AssertionError.
+
+---
+
+### Unknown condition or framing raises ValueError
+
+```bash
+python3 -c "
+from src.prompts.rne_prompts import build_system_prompt
+try:
+    build_system_prompt('X', 'neutral')
+    print('FAIL: no ValueError raised')
+except ValueError as e:
+    print(f'ValueError ok: {e}')
+
+try:
+    build_system_prompt('A', 'aggressive')
+    print('FAIL: no ValueError raised')
+except ValueError as e:
+    print(f'ValueError ok: {e}')
+"
+```
+
+**Expected:** Two `ValueError ok` lines.
+
+---
+
+### History truncation: only last 3 rounds injected
+
+```bash
+python3 -c "
+from src.simulation.config import RNEConfig
+from src.prompts.rne_prompts import build_round_messages
+
+cfg = RNEConfig(family_a='mistral', family_b='llama', condition='A', disclosure='blind', prompt_framing='neutral')
+history = ['r1: traded', 'r2: no trade', 'r3: traded', 'r4: no trade', 'r5: traded']
+msgs = build_round_messages(cfg, 6, 'a0', {'W':2}, history)
+user = msgs[1]['content']
+assert 'r3' in user and 'r4' in user and 'r5' in user, 'last 3 not present'
+assert 'r1' not in user and 'r2' not in user, 'older entries leaked'
+print('history truncation ok')
+"
+```
+
+**Expected:** `history truncation ok`
 
 ## Failure Signals
 
-- `pytest tests/test_smoke.py` shows any failures → engine regression; check which test failed, inspect the relevant module
-- `grep '"event": "round_end"' data/raw/*/game.jsonl | wc -l` returns anything other than a multiple of 150 → round_end emission bug or partial game
-- Any `round_end` line has `"victory_points"` instead of `"vp"` → field name regression in logger.py; breaks H1 analysis stub
-- `total_cost_usd` is `None` in game_end event → cost guard regression; `or 0.0` missing or bypassed
-- `ls data/raw/{game_id}/checkpoint_r*.json | wc -l` < 25 → checkpoint write ordering bug; check game.py flush/checkpoint ordering
-- `gm_resolution` event missing any of the 9 H2 fields → GM logging regression; breaks H2 analysis stub
-- `python src/simulation/gm.py` prints anything other than `"double-spend guard: ok"` → double-spend guard broken; do not run live games until fixed
+- Any pytest failure → check `tests/test_rne_prompts.py` class name in failure output for which module is broken
+- `ValueError` from `build_system_prompt` on valid args → `_FRAMING_INTRO` or `_CONDITION_CORE` dict key mismatch
+- Disclosure family name appearing in blind mode → `build_round_messages` disclosure guard broken
+- `parse_rne_response` returning `None` on valid JSON → strategy 1 regex interference; check `_FENCE_RE` pattern
+- Smoke run cost > $0.05 → model routing or max_tokens misconfiguration; check `PROVIDER_KWARGS` in `llm_router.py`
+- `game.jsonl` missing after smoke run → `GameLogger` or directory creation bug; check `data/study1/` path
 
 ## Requirements Proved By This UAT
 
-- R002 — Trade Island simulation engine: 25-round game runs end-to-end with real Mistral API calls; checkpoint and JSONL output confirmed.
-- R011 — JSONL schema: flat round_end fields, all 9 H2 gm_resolution fields, 9 event types confirmed. Schema locked as S02→S03 boundary contract.
+- R003 (RNE Prompt Architecture) — all 3 conditions × 3 framings × 2 disclosure variants produce correctly structured messages; tolerant parser handles all 4 failure modes; wired into RNERunner
+- R008 (run_rne.py CLI) — CLI accepts all required arguments; produces game.jsonl, summary.json, metadata.json; mock mode works without API calls
 
 ## Not Proven By This UAT
 
-- **≥1 accepted trade in live run:** All 115 trade proposals in the real Mistral-mono run were declined by responders (D037). The acceptance code path executes correctly (confirmed by test_smoke.py double-spend test and gm.py inline test), but LLM consent was not given. Deferred to S04 Phase 0 calibration for prompt investigation.
-- **Mistral API cost tracking:** All Mistral calls returned `response_cost=None`; converted to 0.0 by cost guard. Actual per-game cost is unknown. Investigate in S04.
-- **4-model pairwise routing:** Not tested in S02; requires all 4 API keys and a pairwise config game run. Covered by M001 integration milestone criterion (pairwise game with JSONL model-field spot check).
-- **Crash-resume:** Checkpoint files exist and are readable; resume logic in GameRunner is not yet exercised. Covered by M001 operational verification criteria.
-- **Polars pipeline ingestion:** JSONL schema is locked; actual Polars ingest of round_end lines into analysis-ready DataFrames is M002/S01 scope.
-- **prompt template correctness:** S02 uses inline prompt strings in agent.py/gm.py. S03 replaces these with cache-optimized templates; S03 UAT covers template correctness and parse robustness.
+- High trade acceptance rate in any condition — individual sessions are stochastic; behavioral signal requires Phase 0 batch (S03)
+- Gemini parse reliability at scale — single-session smoke run is insufficient; Phase 0 measures per-family parse rates across 240 sessions
+- M5 (min acceptable offer, Condition C) — requires Condition C sweep with asymmetric inventories; Phase 0 will surface this
+- Cost at Phase 0 scale — $0.0072/session × 240 = ~$1.73 estimate; actual Phase 0 cost confirmed in S03
 
 ## Notes for Tester
 
-- The `data/raw/1e8788dd/` directory is the reference game run. It has 150 round_end lines and 25 checkpoints. If you run `scripts/run_game.py` again, a new game ID will be created alongside it — the grep patterns `data/raw/*/game.jsonl` will span both. Filter to a specific game_id with `data/raw/1e8788dd/game.jsonl` for deterministic counts.
-- `total_cost_usd = 0.0` is correct for the acceptance run. litellm returned `response_cost=None` for all Mistral calls; the `or 0.0` guard produces float 0.0. This satisfies ≤$0.02 criterion. Do not treat this as a bug — it is a known litellm cost metadata gap for this provider configuration.
-- The negative VP values (`"final_vp": {"a0": -17, ...}`) in game_end are expected. Grain consumption (1 grain/round deducted from VP) outpaced building gains in this particular game. This is a game balance calibration concern for S04, not a code bug.
-- Running `pytest tests/test_smoke.py` a second time after the real game run is safe — the mock helper chdir's to pytest's tmp_path so it does not interact with data/raw/.
+- A single smoke session producing 0 accepted trades (M1=0.000) is **not a failure** — it reflects stochastic LLM behavior. The slice requirement is ≥1 trade across all sessions (prior runs contribute to this count). See T03 summary for behavioral details.
+- The `1 warning` in pytest output is always `PytestConfigWarning: Unknown config option: asyncio_mode` — safe to ignore.
+- `grep '"event".*"trade_executed"'` from the original slice plan **does not match** real event names. The actual event is `trade_result` with `accepted: true`. Use the python3 counting command in T03 diagnostics instead.

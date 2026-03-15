@@ -83,11 +83,13 @@ Hard cap: $80 via LiteLLM budget config. Buffer: $7.
 
 ## Current State
 
-- **Completed infrastructure:** LiteLLM routing (7 families), `RNEConfig`, `GameLogger`, `call_llm`, `PROVIDER_KWARGS`
-- **In progress:** S01 — RNE game engine (T01 done; T02 engine loop next)
-- **Pending M001:** RNE engine, RNE prompts, metrics M1–M6, run_rne.py CLI, Phase 0 calibration, OSF registration
-- **Games completed:** 0 / 3,360 Study 1 sessions
-- **Cost burned:** ~$20 (infrastructure + calibration experiments, S01–S04 prior work)
+- **Completed infrastructure:** LiteLLM routing (7 families), `RNEConfig`, `GameLogger`, `call_llm`, `PROVIDER_KWARGS`, full RNE engine (35-round loop, M1–M4 metrics, perturbation), `src/prompts/rne_prompts.py` (9 system prompt variants, disclosure injection, 4-strategy tolerant parser), `scripts/run_rne.py` CLI
+- **S01 complete:** RNE engine + router (T01–T03 done; T04 run_rne.py pending — covered by S02/T03)
+- **S02 complete:** Prompt architecture — `build_system_prompt`, `build_round_messages`, `parse_rne_response`. 165 tests pass. Real Mistral×Llama smoke run: $0.0072/session ≤ $0.05.
+- **S04 partial:** OSF pre-registration docs + analysis stubs committed. Formal OSF submission pending (human action).
+- **Pending M001:** Phase 0 calibration (240 sessions), OSF formal submission
+- **Games completed:** ~3 Study 1 smoke sessions / 3,360 target
+- **Cost burned:** ~$20 (infrastructure + calibration experiments, S01–S04 prior work + S02 smoke runs)
 
 ## Architecture
 
@@ -102,12 +104,12 @@ src/simulation/
   llm_router.py     — call_llm(family) → litellm response · 7-family PROVIDER_KWARGS
   logger.py         — GameLogger · line-buffered JSONL · data/study1/{session_id}/
 src/prompts/
-  rne_prompts.py    — Study 1 prompt functions (T02+)
+  rne_prompts.py    — build_system_prompt (9 LRU-cached) · build_round_messages (disclosure) · parse_rne_response (4-strategy)
   json_utils.py     — tolerant parser · get_completion_kwargs
 src/analysis/
   h1_self_play_premium.py … h5_cfim_to_multiagent.py  (pre-registered stubs)
 scripts/
-  run_rne.py        — Study 1 CLI (T04, pending)
+  run_rne.py        — Study 1 CLI (implemented, smoke-verified)
   run_harbour.py    — Study 2 CLI (M001/S04+)
   run_phase0.py     — Phase 0 calibration CLI (M001/S03+)
 ```
@@ -115,5 +117,5 @@ scripts/
 ## Source of Truth
 
 Design: `.gsd/SIMULATION_DESIGN.md`
-Decisions: `.gsd/DECISIONS.md` (D001–D057)
+Decisions: `.gsd/DECISIONS.md` (D001–D060)
 Requirements: `.gsd/REQUIREMENTS.md`

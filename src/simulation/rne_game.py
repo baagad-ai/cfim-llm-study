@@ -49,6 +49,7 @@ from typing import Any
 from src.simulation.config import RNEConfig
 from src.simulation.logger import GameLogger
 from src.simulation.llm_router import call_llm, strip_md, _FAMILY_MODEL
+from src.prompts.rne_prompts import build_system_prompt, build_round_messages, parse_rne_response
 
 # ---------------------------------------------------------------------------
 # Resource value table (§6.3)
@@ -116,25 +117,31 @@ def _build_round_messages(
     inventory: dict[str, int],
     history: list[str],
     disclosure_family: str | None,
+    system_prompt: str | None = None,  # kept for signature compat; ignored — public fn rebuilds
 ) -> list[dict]:
-    """Build the message list for an action call."""
-    system = _system_prompt(config, agent_id)
-    if config.disclosure == "disclosed" and disclosure_family:
-        model_str = _FAMILY_MODEL.get(disclosure_family, disclosure_family)
-        system += (
-            f"\n\n[OPPONENT INFO: Your trading partner is an AI agent powered by "
-            f"{disclosure_family} ({model_str}).]"
-        )
+    """Build the message list for an action call.
 
-    inv_str = ", ".join(f"{k}:{v}" for k, v in inventory.items() if v > 0) or "empty"
-    user_content = f"Round {round_num}/{config.rounds}. Your inventory: {inv_str}."
-    if history:
-        user_content += f" Recent history: {'; '.join(history[-3:])}"
+    Delegates to the public build_round_messages() from src.prompts.rne_prompts.
+    The system_prompt kwarg is accepted for backward compatibility but ignored:
+    build_round_messages calls the LRU-cached build_system_prompt internally.
 
-    return [
-        {"role": "system", "content": system},
-        {"role": "user", "content": user_content},
-    ]
+    Args:
+        config:            Session config.
+        agent_id:          "a0" or "a1".
+        round_num:         Current round number.
+        inventory:         Agent's current inventory.
+        history:           Round-outcome history strings.
+        disclosure_family: Opponent family to disclose (None = blind).
+        system_prompt:     Ignored (kept for backward compat).
+    """
+    return build_round_messages(
+        config=config,
+        round_num=round_num,
+        agent_id=agent_id,
+        inventory=inventory,
+        history=history,
+        opponent_family=disclosure_family,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -142,18 +149,20 @@ def _build_round_messages(
 # ---------------------------------------------------------------------------
 
 def _parse_action(raw: str) -> dict | None:
-    """Parse an agent action JSON. Returns None on failure."""
-    try:
-        text = strip_md(raw or "")
-        d = json.loads(text)
-        if not isinstance(d, dict):
-            return None
-        action = d.get("action", "").lower()
-        if action not in {"propose", "pass", "accept", "reject"}:
-            return None
-        return d
-    except (json.JSONDecodeError, ValueError):
+    """Parse an agent action JSON using the tolerant 4-strategy parser.
+
+    Delegates to parse_rne_response for JSON extraction, then validates that
+    the resulting dict contains a known action type.
+
+    Returns None on failure or unknown action.
+    """
+    d = parse_rne_response(raw or "")
+    if d is None:
         return None
+    action = d.get("action", "").lower()
+    if action not in {"propose", "pass", "accept", "reject"}:
+        return None
+    return d
 
 
 # ---------------------------------------------------------------------------
@@ -338,6 +347,13 @@ class RNERunner:
         opponent_family_for_a0 = config.family_b if config.disclosure == "disclosed" else None
         opponent_family_for_a1 = config.family_a if config.disclosure == "disclosed" else None
 
+        # Build system prompt once at session start (cached across calls).
+        # This is the static prefix that every round reuses — calling
+        # build_system_prompt here ensures it is invoked exactly once per
+        # session and the cached string is threaded through every call_llm
+        # call for the duration of the session.
+        session_system_prompt = build_system_prompt(config.condition, config.prompt_framing)
+
         logger.log(
             "game_start",
             family_a=config.family_a,
@@ -363,10 +379,12 @@ class RNERunner:
 
                 # --- Simultaneous action collection ---
                 msgs_a0 = _build_round_messages(
-                    config, "a0", round_num, inv["a0"], history_a0, opponent_family_for_a0
+                    config, "a0", round_num, inv["a0"], history_a0, opponent_family_for_a0,
+                    system_prompt=session_system_prompt,
                 )
                 msgs_a1 = _build_round_messages(
-                    config, "a1", round_num, inv["a1"], history_a1, opponent_family_for_a1
+                    config, "a1", round_num, inv["a1"], history_a1, opponent_family_for_a1,
+                    system_prompt=session_system_prompt,
                 )
 
                 r_a0 = call_llm(config.family_a, msgs_a0, mock_response=mock_response)
@@ -416,7 +434,7 @@ class RNERunner:
                 elif a0_proposes and not a1_proposes:
                     # a0 proposed, a1 passed → give a1 a respond call
                     respond_msgs = [
-                        {"role": "system", "content": _system_prompt(config, "a1")},
+                        {"role": "system", "content": session_system_prompt},
                         {"role": "user", "content": _respond_prompt(action_a0, "a1")},
                     ]
                     r_resp = call_llm(config.family_b, respond_msgs, mock_response=mock_response)
@@ -438,7 +456,7 @@ class RNERunner:
                 elif a1_proposes and not a0_proposes:
                     # a1 proposed, a0 passed → give a0 a respond call
                     respond_msgs = [
-                        {"role": "system", "content": _system_prompt(config, "a0")},
+                        {"role": "system", "content": session_system_prompt},
                         {"role": "user", "content": _respond_prompt(action_a1, "a0")},
                     ]
                     r_resp = call_llm(config.family_a, respond_msgs, mock_response=mock_response)

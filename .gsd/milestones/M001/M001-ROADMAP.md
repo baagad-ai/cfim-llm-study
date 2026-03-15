@@ -34,32 +34,37 @@
 
 - [x] **S01: RNE Engine + LLM Router** `risk:high` `depends:[]`
   > After this: `run_rne.py` completes a real 35-round game and writes valid JSONL. `pytest tests/test_rne.py` passes all mock-mode tests. 7-family routing verified.
+  > **STATUS:** T01/T02/T03 done. T04 (run_rne.py CLI + smoke run) is NEXT.
 
 - [x] **S02: RNE Prompt Architecture** `risk:medium` `depends:[S01]`
-  > After this: all 3 framings × 2 disclosure variants produce correctly structured LLM messages. `parse_rne_response` handles all 4 failure modes. `pytest tests/test_rne_prompts.py` passes.
+  > After this: all 3 conditions × 3 framings × 2 disclosure variants produce correctly structured LLM messages. `parse_rne_response` handles all 4 failure modes. `pytest tests/test_rne_prompts.py` passes.
 
-- [x] **S03: Phase 0 Calibration** `risk:medium` `depends:[S01,S02]`
+- [ ] **S03: Phase 0 Calibration** `risk:medium` `depends:[S01,S02]`
   > After this: 240 sessions run; parse rate ≥90% per family; `data/phase0/calibration_report.md` with go/no-go for Study 1.
 
 - [ ] **S04: OSF Pre-Registration** `risk:low` `depends:[S01]`
   > After this: OSF registration formally submitted; URL recorded. Unblocks M002.
+  > **STATUS:** T01 done (docs + stubs written). T02 requires human OSF submission.
 
 ---
 
 ## S01 — RNE Engine + LLM Router (IN PROGRESS)
 
-**Status:** T01 complete. T02 next.
+**Status:** T01/T02/T03 complete. T04 (run_rne.py CLI + smoke run) is NEXT.
 
 ### Tasks
 
 - [x] **T01: Config, Logger, and LLM Router** `est:1h`
-  > `RNEConfig` (7-family validated), `GameLogger`, `call_llm` + 7-family `PROVIDER_KWARGS`. 31 tests pass.
+  > `RNEConfig` (7-family validated), `GameLogger`, `call_llm` + 7-family `PROVIDER_KWARGS`. Tests pass.
 
 - [x] **T02: RNE Game Engine** `est:2h`
-  > `src/simulation/rne_game.py` — `RNERunner.run_session()`: 35-round loop, simultaneous proposals, compatibility check, respond call, trade settlement, 10% decay, perturbation at round 20, M1–M4, `summary.json`, `metadata.json`. 47 tests pass.
+  > `src/simulation/rne_game.py` — `RNERunner.run_session()`: 35-round loop, simultaneous proposals, compatibility check, respond call, trade settlement, 10% decay, perturbation at round 20. 47 tests pass.
 
-- [ ] **T03: CLI + Smoke Run** `est:1h`
-  > `scripts/run_rne.py` CLI. Full mock-mode test suite in `tests/test_rne.py`. Real Mistral×Llama smoke session (≥1 accepted trade, cost ≤$0.05).
+- [x] **T03: Metrics (M1–M4)** `est:1h`
+  > `_compute_metrics()` in `rne_game.py`. M1=cooperation_rate, M2=exploitation_delta, M3=adaptation_lag, M4=betrayal_recovery. Covered by engine integration tests.
+
+- [ ] **T04: run_rne.py CLI + smoke run** `est:1h`
+  > **NEXT.** `scripts/run_rne.py` CLI. Real Mistral×Llama smoke session. Verify 70 round_end events, 1 perturbation, ≥1 accepted trade, cost ≤$0.05.
 
 ### S01 Verification
 
@@ -86,21 +91,18 @@ print('smoke ok, cost:', s['total_cost_usd'])
 
 ## S02 — RNE Prompt Architecture
 
-**Status:** Not started. Starts after S01 complete.
+**Status:** Not started. Starts after S01/T04 complete.
 
 ### Must-Haves
 
-- `src/prompts/rne_prompts.py`:
-  - `build_system_prompt(condition, framing)` — static prefix per (condition × framing) pair; 6 cached variants
-  - `build_round_messages(config, round_num, agent_id, inventory, history, opponent_family=None)` — includes disclosure injection when `config.disclosure == "disclosed"`
-  - `parse_rne_response(raw)` — tolerant parser; handles valid JSON, fenced JSON, JSON with surrounding text, truncated JSON; returns `dict | None`
-- `tests/test_rne_prompts.py` — parse rate tests across all 4 failure modes; disclosure injection verified; framing variant token counts within budget
+- `src/prompts/rne_prompts.py` with `build_system_prompt(condition, framing)` (9 variants), `build_round_messages(...)` with disclosure injection, `parse_rne_response(raw)`
+- `tests/test_rne_prompts.py` covering all 4 parser failure modes + disclosure injection + framing token counts
 
-### Tasks (to be planned)
+### Tasks
 
-- [ ] **T01: System prompt variants + framing** `est:1h`
+- [ ] **T01: System prompt variants — 3 conditions × 3 framings** `est:1h`
 - [ ] **T02: Round messages + disclosure injection** `est:1h`
-- [ ] **T03: Tolerant parser + tests** `est:45m`
+- [ ] **T03: Tolerant parser + full test suite + smoke run** `est:45m`
 
 ---
 
@@ -111,33 +113,31 @@ print('smoke ok, cost:', s['total_cost_usd'])
 ### Must-Haves
 
 - `scripts/run_phase0.py` — runs 4 families × 10 sessions × 3 conditions × 2 disclosure = 240 sessions
-- JSON parse rate ≥90% per family confirmed
-- ≥1 completed trade per session (M1>0 in at least one session per family-pair)
-- `data/phase0/calibration_report.md` with: per-family parse rates, M1 distribution, cost totals, go/no-go recommendation
-- Total Phase 0 cost ≤ $12
+- JSON parse rate ≥90% per family; ≥1 completed trade per session; cost ≤$12
+- `data/phase0/calibration_report.md` with Go/No-Go recommendation
 
-### Tasks (to be planned)
+### Tasks
 
 - [ ] **T01: run_phase0.py + 4-family test run** `est:1h`
-- [ ] **T02: Full 240-session run** `est:30m (run time)`
+- [ ] **T02: Full 240-session run** `est:30m (wall time)`
 - [ ] **T03: Calibration report** `est:45m`
 
 ---
 
 ## S04 — OSF Pre-Registration
 
-**Status:** Not started. Can start in parallel with S03.
+**Status:** T01 done. T02 requires human OSF submission. Can proceed in parallel with S03.
 
 ### Must-Haves
 
-- Formal OSF registration submitted with H1–H5 text from `docs/osf_preregistration.md`
-- `data/metadata/osf_registration.json` updated with registration URL and timestamp
-- Analysis stubs H1–H5 confirmed as the registered analysis scripts
+- `docs/osf_preregistration.md` ✅ written
+- `src/analysis/h1–h5_*.py` stubs ✅ committed
+- `data/metadata/osf_registration.json` with real registration URL (pending T02)
 
-### Tasks (to be planned)
+### Tasks
 
-- [ ] **T01: OSF account + draft registration** `est:30m`
-- [ ] **T02: Submit registration** `est:15m (human action)`
+- [x] **T01: Write pre-registration document and analysis stubs** `est:2h`
+- [ ] **T02: Create OSF project and submit formal registration** `est:1h` *(human action)*
 - [ ] **T03: Record URL + commit** `est:10m`
 
 ---

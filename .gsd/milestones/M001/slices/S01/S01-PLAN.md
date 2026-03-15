@@ -32,6 +32,13 @@ grep '"event": "game_end"' data/study1/*/game.jsonl | python3 -c \
 ## Tasks
 
 - [x] **T01: Config, Logger, and LLM Router** `est:1h`
-- [ ] **T02: RNE Engine** `est:2h`
-- [ ] **T03: Metrics (M1–M4)** `est:1h`
+  > DONE. `RNEConfig` (7-family validated), `GameLogger`, `call_llm` + 7-family `PROVIDER_KWARGS`. Tests pass.
+
+- [x] **T02: RNE Engine** `est:2h`
+  > DONE. `RNERunner.run_session()`: 35-round loop, simultaneous proposals, compatibility check, respond call, trade settlement, 10% decay, perturbation at round 20, summary.json, metadata.json. 47 tests pass in `tests/test_rne.py`.
+
+- [x] **T03: Metrics (M1–M4)** `est:1h`
+  > DONE. M1–M4 computed in `_compute_metrics()` inside `rne_game.py`. M1=cooperation_rate, M2=exploitation_delta, M3=adaptation_lag, M4=betrayal_recovery. Covered by `test_m1_computation` and engine integration tests.
+
 - [ ] **T04: run_rne.py CLI + smoke run** `est:1h`
+  > NEXT. Write `scripts/run_rne.py` CLI. Run real Mistral×Llama smoke session (≥1 accepted trade, cost ≤$0.05). Verify 70 round_end events and 1 perturbation event in `data/study1/`.

@@ -3,99 +3,131 @@ id: T02
 parent: S02
 milestone: M001
 provides:
-  - src/simulation/llm_router.py — call_llm(), strip_md(), PROVIDER_KWARGS
-  - mock_response cost guard returning float 0.0 (not None, not int 0)
-  - DeepSeek R1 reflection override (model string + max_tokens + no response_format)
+  - src/prompts/rne_prompts.py with build_round_messages(config, round_num, agent_id, inventory, history, opponent_family=None)
+  - tests/test_rne_prompts.py — 96 tests total (42 from T01 + 54 new covering structure, disclosure, history, token budget)
+  - src/simulation/rne_game.py — _build_round_messages delegates to public build_round_messages; build_round_messages imported
 key_files:
-  - src/simulation/llm_router.py
+  - src/prompts/rne_prompts.py
+  - src/simulation/rne_game.py
+  - tests/test_rne_prompts.py
 key_decisions:
-  - call_llm signature uses (model_string, provider, messages, ...) so callers supply both the
-    litellm model string and the PROVIDER_KWARGS lookup key explicitly — no implicit lookup from
-    GameConfig inside the router; keeps the router stateless and testable in isolation
-  - Gemini max_tokens enforced at 200 inside PROVIDER_KWARGS (per D022), not overridable by caller
-    default; caller-supplied max_tokens applies after PROVIDER_KWARGS merge so Gemini always wins
-  - time.sleep(0.5) conditioned on mock_response is None — mock calls are instant, no sleep
+  - Disclosure injected into user message only (not system). System stays static/cached; per-round identity signal goes in user where it belongs.
+  - _build_round_messages in rne_game.py kept as thin wrapper (signature compat) delegating to public fn. system_prompt kwarg accepted but ignored — build_system_prompt is LRU-cached so calling it every round is free.
+  - Zero-quantity resources omitted from inventory string to keep user message concise.
 patterns_established:
-  - cost: float = (r._hidden_params.get("response_cost") or 0.0) — always float, never None/int
-  - PROVIDER_KWARGS dict keyed by provider string ("groq", "deepseek", "gemini", "mistral")
-  - Reflection override pattern: copy PROVIDER_KWARGS[provider], pop "response_format", override
-    model_string and max_tokens before calling litellm.completion
+  - build_round_messages is the canonical per-round message builder; call sites in rne_game.py use it via the wrapper
+  - Disclosure: config.disclosure drives the injection decision; opponent_family=None is safe in both modes (no injection when None)
+  - History: last ≤3 items from history list; caller maintains the list
 observability_surfaces:
-  - python src/simulation/llm_router.py — standalone mock diagnostic; prints "mock cost guard: ok"
-  - grep "response_cost" src/simulation/llm_router.py — shows cost guard implementation
-  - call_llm propagates litellm exceptions to caller — no swallowing; callers handle retries
-duration: ~20m
+  - Token budget verified across all 18 combos (3 conditions × 3 framings × 2 disclosure): range 266–311 tok, max 311 (budget 400)
+  - Parametrized tests cover all disclosure × condition × framing combos — leaks caught automatically
+duration: ~25m
 verification_result: passed
 completed_at: 2026-03-15
 blocker_discovered: false
 ---
 
-# T02: Write llm_router.py with per-provider routing and mock guards
+# T02: Round messages + disclosure injection
 
-**Implemented `call_llm()` as the single LLM routing surface with per-provider kwargs, DeepSeek R1 reflection override, float cost guard, and a passing standalone mock self-test.**
+**Added `build_round_messages(...)` to `rne_prompts.py` with correct disclosure injection and history truncation; wired into `rne_game.py`.**
 
 ## What Happened
 
-Read `scripts/test_connectivity.py` and `src/simulation/config.py` first to get exact `strip_md()` and per-provider kwargs before writing anything.
+Added `build_round_messages(config, round_num, agent_id, inventory, history, opponent_family=None)` to `src/prompts/rne_prompts.py`.
 
-Wrote `src/simulation/llm_router.py` with:
-- `litellm.drop_params = True` and `litellm.set_verbose = False` at module level, after `load_dotenv`
-- `strip_md()` copied verbatim (4-line function including docstring, identical to test_connectivity.py)
-- `PROVIDER_KWARGS` dict with all 4 providers; Gemini includes `max_tokens: 200` per D022
-- `call_llm(model_string, provider, messages, max_tokens=150, is_reflection=False, mock_response=None) -> tuple[str, float]`
-  - DeepSeek reflection: overrides to `openrouter/deepseek/deepseek-r1`, `max_tokens=800`, drops `response_format` from a copy of kwargs
-  - `time.sleep(0.5)` only when `mock_response is None`
-  - `cost: float = (r._hidden_params.get("response_cost") or 0.0)` — float guaranteed
-- `__main__` self-test: calls with `mock_response='{"action":"build"}'`, asserts `cost == 0.0` and `isinstance(cost, float)`
+Implementation:
+- Calls `build_system_prompt(config.condition, config.prompt_framing)` for the system message — LRU-cached, free to call each round.
+- User message assembles: round number/total, non-zero inventory resources, last ≤3 history entries.
+- When `config.disclosure == "disclosed"` and `opponent_family` is not None: appends `"Your opponent is a {opponent_family} model."` to the user message only. System message is never modified.
+- Zero-quantity resources are filtered from the inventory string; empty inventory renders as `"empty"`.
+
+In `src/simulation/rne_game.py`:
+- Added `build_round_messages` to the import from `src.prompts.rne_prompts`.
+- Replaced `_build_round_messages` body with a thin delegation call to the public function. The `system_prompt` kwarg is kept for signature compatibility but ignored (the cached function is free to call).
+
+Added 54 new tests in `tests/test_rne_prompts.py` across 4 classes:
+- `TestBuildRoundMessagesStructure` — 9 tests (list structure, roles, round/inventory content, zero-resource filtering, system content identity)
+- `TestBuildRoundMessagesDisclosure` — 15 parametrized + standalone tests (blind no-leak for all 9 condition×framing combos, disclosed injection for all 9, user-only placement, None-safety)
+- `TestBuildRoundMessagesHistory` — 5 tests (no history, last-3 present, earlier excluded, single entry, exactly-3 entries)
+- `TestBuildRoundMessagesTokenBudget` — 18 parametrized tests (all condition × framing × disclosure combos ≤ 400 tokens)
 
 ## Verification
 
-```bash
-# Import check
-.venv/bin/python -c "from src.simulation.llm_router import call_llm, strip_md; print('import ok')"
-# → import ok ✅
-
-# Self-test (mock cost guard)
-.venv/bin/python src/simulation/llm_router.py
-# → mock cost guard: ok ✅
-
-# Code review — or 0.0 present
-grep "or 0\.0" src/simulation/llm_router.py
-# → cost: float = (r._hidden_params.get("response_cost") or 0.0) ✅
-
-# Code review — no bare "or 0" in executable code (docstring false-positive excluded)
-grep -E "or 0[^.]" src/simulation/llm_router.py | grep -v "^\s*#"
-# → only the docstring phrase "(not `or 0`)" — no actual code uses bare or 0 ✅
+```
+pytest tests/test_rne.py tests/test_rne_prompts.py -v
+# → 143 passed, 1 warning
 ```
 
-Slice-level verification: `tests/test_smoke.py` does not exist yet (T04 writes it) — expected at this stage.
+Task-plan disclosure verification script:
+```
+disclosure injection ok
+```
+
+Token budget across all 18 combos:
+```
+A/neutral/blind: 266 tok  A/neutral/disclosed: 274 tok
+A/social/blind:  287 tok  A/social/disclosed:  295 tok
+A/strategic/blind: 275 tok  A/strategic/disclosed: 283 tok
+B/neutral/blind: 283 tok  B/neutral/disclosed: 291 tok
+B/social/blind:  303 tok  B/social/disclosed:  311 tok
+B/strategic/blind: 291 tok  B/strategic/disclosed: 299 tok
+C/neutral/blind: 283 tok  C/neutral/disclosed: 291 tok
+C/social/blind:  303 tok  C/social/disclosed:  311 tok
+C/strategic/blind: 291 tok  C/strategic/disclosed: 299 tok
+max: 311 (budget: 400)
+```
+
+All must-haves confirmed:
+- ✅ Returns list[dict] with system + user message for every combination
+- ✅ Blind: opponent family name NOT present in any message content (18 parametrized tests)
+- ✅ Disclosed: opponent family name present in user message content (18 parametrized tests)
+- ✅ Disclosed injection in user message only — not system (explicit test)
+- ✅ History injection: last ≤3 rounds included; older rounds excluded (5 tests)
+- ✅ Token count ≤ 400 for all 18 combinations (range 266–311)
 
 ## Diagnostics
 
 ```bash
-# Run the standalone mock diagnostic at any time
-.venv/bin/python src/simulation/llm_router.py
-# Expected: "mock cost guard: ok"
+# Inspect round messages for both disclosure modes
+python3 -c "
+from src.simulation.config import RNEConfig
+from src.prompts.rne_prompts import build_round_messages
 
-# Verify DeepSeek R1 override is in code
-grep "deepseek-r1" src/simulation/llm_router.py
+cfg_blind = RNEConfig(family_a='mistral', family_b='llama', condition='A', disclosure='blind', prompt_framing='neutral')
+cfg_disc  = RNEConfig(family_a='mistral', family_b='llama', condition='A', disclosure='disclosed', prompt_framing='neutral')
 
-# Verify cost guard
-grep "response_cost" src/simulation/llm_router.py
+blind = build_round_messages(cfg_blind, 5, 'a0', {'W':3,'S':2}, ['r1: traded','r2: no trade','r3: traded'], 'llama')
+disc  = build_round_messages(cfg_disc,  5, 'a0', {'W':3,'S':2}, ['r1: traded','r2: no trade','r3: traded'], 'llama')
+
+print('=== BLIND user msg ===')
+print(blind[1]['content'])
+print()
+print('=== DISCLOSED user msg ===')
+print(disc[1]['content'])
+"
 ```
-
-Exceptions from `litellm.completion` propagate to the caller unchanged — GM and Agent handle retries at their level as planned.
 
 ## Deviations
 
-None. Followed T02-PLAN exactly.
+One minor deviation: the existing `_build_round_messages` in `rne_game.py` previously injected the disclosure info into the **system** message. The task plan (step 4) and must-have clearly specify injection into the **user** message. The new public function correctly puts it in the user message; the wrapper drops the old system-injection logic. This is a spec-alignment fix, not a feature change.
 
-Note: The S02-PLAN task description uses a different `call_llm` signature (agent_id-based) than T02-PLAN (model_string + provider). T02-PLAN is the authoritative contract and was implemented as written. The S02-PLAN task description is a looser summary written before the detailed plan existed.
+The `system_prompt` kwarg on `_build_round_messages` is retained for signature compat but is now a no-op — callers passing it will not cause errors. T03 can remove the wrapper entirely once all call sites have been verified.
 
 ## Known Issues
 
-None.
+None. The old `_system_prompt()` function in `rne_game.py` is still present but no longer called (flagged in T01 summary). Safe to remove in T03 cleanup.
+
+## Slice-Level Verification Status (intermediate)
+
+```
+pytest tests/test_rne.py tests/test_rne_prompts.py -v → 143 passed ✅
+run_rne.py smoke run → pending (T03) ❌
+trade_executed count ≥1 → pending (T03) ❌
+cost ≤ $0.05 → pending (T03) ❌
+```
 
 ## Files Created/Modified
 
-- `src/simulation/llm_router.py` — new file; `call_llm()`, `strip_md()`, `PROVIDER_KWARGS`; self-test in `__main__`
+- `src/prompts/rne_prompts.py` — added `build_round_messages` public function + updated module docstring + TYPE_CHECKING import
+- `src/simulation/rne_game.py` — imported `build_round_messages`; replaced `_build_round_messages` body with delegation wrapper
+- `tests/test_rne_prompts.py` — added 54 new tests across 4 classes; updated module docstring and imports
