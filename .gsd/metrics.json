@@ -775,6 +775,24 @@
       "toolCalls": 0,
       "assistantMessages": 5,
       "userMessages": 0
+    },
+    {
+      "type": "reassess-roadmap",
+      "id": "M001/S03",
+      "model": "claude-sonnet-4-6",
+      "startedAt": 1773638936988,
+      "finishedAt": 1773639008021,
+      "tokens": {
+        "input": 12,
+        "output": 2513,
+        "cacheRead": 477626,
+        "cacheWrite": 56488,
+        "total": 536639
+      },
+      "cost": 0.3928488,
+      "toolCalls": 0,
+      "assistantMessages": 10,
+      "userMessages": 0
     }
   ]
 }
