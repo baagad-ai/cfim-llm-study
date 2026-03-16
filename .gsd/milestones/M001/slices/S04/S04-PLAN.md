@@ -40,7 +40,7 @@ git log --oneline src/analysis/
 - [x] **T02: Create OSF project and submit formal registration** `est:1h`
   > **Human action required.** Go to osf.io → create account → new project titled 'Cross-Family Interaction Matrix: Opponent-Contingent Behavioral Profiles in LLM Agents' → set visibility to public → upload `docs/osf_preregistration.md` → Registrations tab → New registration → Open-Ended Registration → link GitHub repo → Submit. Then update `data/metadata/osf_registration.json` with URL and timestamp.
 
-- [ ] **T03: Record URL + commit** `est:10m`
+- [x] **T03: Record URL + commit** `est:10m`
   > Update `data/metadata/osf_registration.json` with real registration URL and timestamp after T02 human step. Commit.
 
 ## Files Likely Touched

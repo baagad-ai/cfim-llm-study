@@ -9,7 +9,9 @@
 
 **GitHub repository:** https://github.com/baagad-ai/cfim-llm-study
 
-**Primary analysis stub commit:** [to be filled at OSF submission — use `git rev-parse HEAD` at time of submission]
+**Primary analysis stub commit:** ca3b54426f70fd7554ae11d7f51927d85b61c95c
+
+**OSF registration:** https://osf.io/9354h
 
 **Target venue:** AAMAS 2027, GAAI track (full paper); backup NeurIPS 2026 Foundation Models workshop
 

@@ -1,7 +1,7 @@
 # Cross-Family Interaction Matrix (CFIM)
 ### Opponent-Contingent Behavioral Profiles in LLM Agents
 
-> **Pre-registration:** OSF — _link added before Phase 1 data collection_
+> **Pre-registration:** OSF — https://osf.io/9354h
 >
 > **Target venues:** AAMAS 2027 (full paper) · NeurIPS 2026 Foundation Models Workshop (short paper)
 
