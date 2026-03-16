@@ -1,0 +1,13 @@
+{
+  "family_a": "deepseek",
+  "family_b": "deepseek",
+  "condition": "C",
+  "disclosure": "disclosed",
+  "prompt_framing": "neutral",
+  "rounds": 35,
+  "decay_rate": 0.1,
+  "perturbation_round": 20,
+  "session_id": "242ea4d3",
+  "wall_clock_seconds": 97.31,
+  "replicate": 9
+}

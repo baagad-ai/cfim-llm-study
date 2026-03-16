@@ -1,0 +1,13 @@
+{
+  "family_a": "gemini",
+  "family_b": "gemini",
+  "condition": "A",
+  "disclosure": "blind",
+  "prompt_framing": "neutral",
+  "rounds": 35,
+  "decay_rate": 0.1,
+  "perturbation_round": 20,
+  "session_id": "64f6b0f4",
+  "wall_clock_seconds": 124.52,
+  "replicate": 10
+}

@@ -1,7 +1,7 @@
 # Cross-Family Interaction Matrix (CFIM)
 *How LLM Behavioral Profiles Shift as a Function of Opponent Model Family*
 
-**Status:** Active — M001 executing (S01 T01 complete)
+**Status:** Active — M001 S03 complete (Phase 0 GO); S04 awaiting human OSF submission
 **Target venues:** AAMAS 2027 full paper · NeurIPS 2026 Foundation Models workshop (short paper)
 **Design doc:** `.gsd/SIMULATION_DESIGN.md` (authoritative — all implementation follows this)
 **Last updated:** 2026-03-15
@@ -84,12 +84,13 @@ Hard cap: $80 via LiteLLM budget config. Buffer: $7.
 ## Current State
 
 - **Completed infrastructure:** LiteLLM routing (7 families), `RNEConfig`, `GameLogger`, `call_llm`, `PROVIDER_KWARGS`, full RNE engine (35-round loop, M1–M4 metrics, perturbation), `src/prompts/rne_prompts.py` (9 system prompt variants, disclosure injection, 4-strategy tolerant parser), `scripts/run_rne.py` CLI
-- **S01 complete:** RNE engine + router (T01–T03 done; T04 run_rne.py pending — covered by S02/T03)
+- **S01 complete:** RNE engine + router (T01–T03 done; T04 run_rne.py covered by S02/T03)
 - **S02 complete:** Prompt architecture — `build_system_prompt`, `build_round_messages`, `parse_rne_response`. 165 tests pass. Real Mistral×Llama smoke run: $0.0072/session ≤ $0.05.
-- **S04 partial:** OSF pre-registration docs + analysis stubs committed. Formal OSF submission pending (human action).
-- **Pending M001:** Phase 0 calibration (240 sessions), OSF formal submission
-- **Games completed:** ~3 Study 1 smoke sessions / 3,360 target
-- **Cost burned:** ~$20 (infrastructure + calibration experiments, S01–S04 prior work + S02 smoke runs)
+- **S03 complete:** Phase 0 calibration — 240 sessions (4 families × 60); all parse rates ≥99.95%; all families trading; total cost $2.11; **GO decision issued**. `data/phase0/calibration_report.md` written.
+- **S04 partial:** OSF pre-registration docs + analysis stubs committed. Formal OSF submission pending (human action — must complete before M002).
+- **Pending M001:** OSF formal submission (human action)
+- **Games completed:** 240 Phase 0 + ~3 Study 1 smoke sessions
+- **Cost burned:** ~$22 total (infrastructure + S01–S03 calibration)
 
 ## Architecture
 

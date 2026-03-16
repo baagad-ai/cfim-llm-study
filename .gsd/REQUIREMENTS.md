@@ -71,8 +71,8 @@ Design authority: `.gsd/SIMULATION_DESIGN.md`.
 - Source: SIMULATION_DESIGN.md §3 (Phase 0 note), §8 Q3
 - Primary owning slice: M001/S03
 - Supporting slices: none
-- Validation: unmapped
-- Notes: Depends on R002 (engine) and R003 (prompts) complete.
+- Validation: validated
+- Notes: 240 sessions complete (4 families × 60 sessions each); all parse rates ≥99.95%; all families traded (29–41 sessions with trades per family); total cost $2.11 ≤ $12; calibration_report.md written with GO decision. Unblocks M002.
 
 ### R007 — JSONL Schema + Data Directory (Study 1)
 - Class: data-management
@@ -225,7 +225,7 @@ Design authority: `.gsd/SIMULATION_DESIGN.md`.
 | R003 | core-infrastructure | active | M001/S02 | **validated** — 118 prompt tests pass; 9 variants ≤300 tok; disclosure injection + parser verified; smoke run at $0.0072 |
 | R004 | core-infrastructure | active | M001/S01 (T01) | **validated** — RNEConfig + field_validator + 31 tests pass |
 | R005 | research-phase | active | M001/S01 (T02) | unmapped |
-| R006 | research-phase | active | M001/S03 | unmapped |
+| R006 | research-phase | active | M001/S03 | **validated** — 240 sessions, parse ≥99.95%, all families trading, cost $2.11, GO |
 | R007 | data-management | active | M001/S01 (T02) | unmapped |
 | R008 | operability | active | M001/S02 (T03) | **validated** — CLI smoke-verified; game.jsonl + summary.json + metadata.json written; mock mode works |
 | R009 | research-integrity | active | M001/S04 | partial — stubs + doc committed; OSF submission pending |

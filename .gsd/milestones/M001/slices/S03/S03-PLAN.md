@@ -49,13 +49,13 @@ test -f data/phase0/calibration_report.md && grep -iE 'GO|NO-GO' data/phase0/cal
 
 ## Tasks
 
-- [ ] **T01: run_phase0.py + 4-family test run** `est:1h`
+- [x] **T01: run_phase0.py + 4-family test run** `est:1h`
   > Write `scripts/run_phase0.py` CLI. Run a 4-session smoke (1 per family) to confirm all providers route correctly. Verify ≥1 accepted trade per smoke session.
 
-- [ ] **T02: Full 240-session run** `est:30m (wall time)`
+- [x] **T02: Full 240-session run** `est:30m (wall time)`
   > Run all 240 Phase 0 sessions. Monitor cost per batch. Target total ≤$12.
 
-- [ ] **T03: Calibration report** `est:45m`
+- [x] **T03: Calibration report** `est:45m`
   > Extract metrics. Write `data/phase0/calibration_report.md` with 5 sections: (1) Parse Rates, (2) Trade Acceptance (M1 distribution), (3) Cost Breakdown, (4) Family-specific observations, (5) Go/No-Go Decision.
 
 ## Files Likely Touched

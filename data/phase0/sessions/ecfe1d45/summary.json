@@ -1,0 +1,16 @@
+{
+  "session_id": "ecfe1d45",
+  "family_a": "deepseek",
+  "family_b": "deepseek",
+  "condition": "B",
+  "disclosure": "disclosed",
+  "framing": "neutral",
+  "cooperation_rate": 0.0,
+  "exploitation_delta": 0.0,
+  "adaptation_lag": null,
+  "betrayal_recovery": 1,
+  "total_cost_usd": 0.007511390000000004,
+  "total_rounds": 35,
+  "completed_trades": 0,
+  "parse_failure_count": 0
+}

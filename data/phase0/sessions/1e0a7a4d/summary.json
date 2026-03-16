@@ -1,0 +1,16 @@
+{
+  "session_id": "1e0a7a4d",
+  "family_a": "gemini",
+  "family_b": "gemini",
+  "condition": "A",
+  "disclosure": "disclosed",
+  "framing": "neutral",
+  "cooperation_rate": 0.0,
+  "exploitation_delta": 0.0,
+  "adaptation_lag": 1,
+  "betrayal_recovery": 1,
+  "total_cost_usd": 0.011866599999999982,
+  "total_rounds": 35,
+  "completed_trades": 0,
+  "parse_failure_count": 0
+}

@@ -39,7 +39,7 @@
 - [x] **S02: RNE Prompt Architecture** `risk:medium` `depends:[S01]`
   > After this: all 3 conditions × 3 framings × 2 disclosure variants produce correctly structured LLM messages. `parse_rne_response` handles all 4 failure modes. `pytest tests/test_rne_prompts.py` passes.
 
-- [ ] **S03: Phase 0 Calibration** `risk:medium` `depends:[S01,S02]`
+- [x] **S03: Phase 0 Calibration** `risk:medium` `depends:[S01,S02]`
   > After this: 240 sessions run; parse rate ≥90% per family; `data/phase0/calibration_report.md` with go/no-go for Study 1.
 
 - [ ] **S04: OSF Pre-Registration** `risk:low` `depends:[S01]`

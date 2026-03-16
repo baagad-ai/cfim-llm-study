@@ -1,0 +1,13 @@
+{
+  "family_a": "mistral",
+  "family_b": "mistral",
+  "condition": "C",
+  "disclosure": "blind",
+  "prompt_framing": "neutral",
+  "rounds": 35,
+  "decay_rate": 0.1,
+  "perturbation_round": 20,
+  "session_id": "c8cbc2b1",
+  "wall_clock_seconds": 67.79,
+  "replicate": 5
+}

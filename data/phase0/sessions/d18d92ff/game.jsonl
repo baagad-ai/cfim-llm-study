@@ -1,0 +1,213 @@
+{"ts": "2026-03-15T23:26:24.196153+00:00", "event": "game_start", "game_id": "d18d92ff", "family_a": "deepseek", "family_b": "deepseek", "condition": "B", "disclosure": "blind", "framing": "neutral", "rounds": 35}
+{"ts": "2026-03-15T23:26:24.196216+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 1}
+{"ts": "2026-03-15T23:26:29.548156+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 1, "agent_a": {"action": "propose", "give": {"W": 1}, "want": {"G": 1}, "note": "Let's start trading for mutual benefit."}, "agent_b": {"action": "propose", "give": {"C": 1}, "want": {"W": 1}, "note": "Seeking to establish initial trade relationship"}}
+{"ts": "2026-03-15T23:26:29.548197+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 1, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:26:29.548212+00:00", "event": "decay", "game_id": "d18d92ff", "round": 1, "inventories": {"a0": {"W": 4, "S": 4, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 4, "C": 4}}}
+{"ts": "2026-03-15T23:26:29.548224+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 1, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 4, "S": 4, "G": 0, "C": 0}, "inventory_value": 8, "trade_executed": false}
+{"ts": "2026-03-15T23:26:29.548235+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 1, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 4, "C": 4}, "inventory_value": 16, "trade_executed": false}
+{"ts": "2026-03-15T23:26:29.548242+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 2}
+{"ts": "2026-03-15T23:26:35.978445+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 2, "agent_a": {"action": "propose", "give": {"W": 1}, "want": {"G": 1}, "note": "Offering wood for grain to start trade."}, "agent_b": {"action": "propose", "give": {"G": 1}, "want": {"W": 1}, "note": "Fair trade to start cooperation"}}
+{"ts": "2026-03-15T23:26:35.978516+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 2, "accepted": true, "give_a": {"W": 1}, "want_a": {"G": 1}}
+{"ts": "2026-03-15T23:26:35.978533+00:00", "event": "decay", "game_id": "d18d92ff", "round": 2, "inventories": {"a0": {"W": 2, "S": 3, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 2, "C": 3}}}
+{"ts": "2026-03-15T23:26:35.978552+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 2, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 2, "S": 3, "G": 0, "C": 0}, "inventory_value": 5, "trade_executed": true}
+{"ts": "2026-03-15T23:26:35.978563+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 2, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 2, "C": 3}, "inventory_value": 10, "trade_executed": true}
+{"ts": "2026-03-15T23:26:35.978572+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 3}
+{"ts": "2026-03-15T23:26:42.276336+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 3, "agent_a": {"action": "propose", "give": {"W": 1}, "want": {"G": 1}, "note": "Offering Wood for Grain"}, "agent_b": {"action": "propose", "give": {"C": 1}, "want": {"W": 1}, "note": "Mutually beneficial trade offer"}}
+{"ts": "2026-03-15T23:26:42.276393+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 3, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:26:42.276409+00:00", "event": "decay", "game_id": "d18d92ff", "round": 3, "inventories": {"a0": {"W": 1, "S": 2, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 1, "C": 2}}}
+{"ts": "2026-03-15T23:26:42.276421+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 3, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 1, "S": 2, "G": 0, "C": 0}, "inventory_value": 3, "trade_executed": false}
+{"ts": "2026-03-15T23:26:42.276433+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 3, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 1, "C": 2}, "inventory_value": 6, "trade_executed": false}
+{"ts": "2026-03-15T23:26:42.276446+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 4}
+{"ts": "2026-03-15T23:26:47.554622+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 4, "agent_a": {"action": "propose", "give": {"S": 1}, "want": {"G": 1}, "note": "Fair trade proposal"}, "agent_b": {"action": "propose", "give": {"C": 1}, "want": {"S": 1}, "note": "Fair trade to balance resources"}}
+{"ts": "2026-03-15T23:26:47.554685+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 4, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:26:47.554701+00:00", "event": "decay", "game_id": "d18d92ff", "round": 4, "inventories": {"a0": {"W": 0, "S": 1, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 1}}}
+{"ts": "2026-03-15T23:26:47.554714+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 4, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 1, "G": 0, "C": 0}, "inventory_value": 1, "trade_executed": false}
+{"ts": "2026-03-15T23:26:47.554729+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 4, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 1}, "inventory_value": 2, "trade_executed": false}
+{"ts": "2026-03-15T23:26:47.554737+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 5}
+{"ts": "2026-03-15T23:26:50.522496+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 5, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:26:50.522700+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 5, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:26:50.522782+00:00", "event": "decay", "game_id": "d18d92ff", "round": 5, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:26:50.522848+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 5, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:26:50.522905+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 5, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:26:50.522952+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 6}
+{"ts": "2026-03-15T23:26:53.184533+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 6, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:26:53.184611+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 6, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:26:53.184628+00:00", "event": "decay", "game_id": "d18d92ff", "round": 6, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:26:53.184641+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 6, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:26:53.184664+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 6, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:26:53.184673+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 7}
+{"ts": "2026-03-15T23:26:56.542919+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 7, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:26:56.543105+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 7, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:26:56.543176+00:00", "event": "decay", "game_id": "d18d92ff", "round": 7, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:26:56.543235+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 7, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:26:56.543285+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 7, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:26:56.543362+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 8}
+{"ts": "2026-03-15T23:26:59.811609+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 8, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:26:59.811646+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 8, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:26:59.811662+00:00", "event": "decay", "game_id": "d18d92ff", "round": 8, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:26:59.811675+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 8, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:26:59.811686+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 8, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:26:59.811694+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 9}
+{"ts": "2026-03-15T23:27:02.184135+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 9, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:02.184202+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 9, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:02.184234+00:00", "event": "decay", "game_id": "d18d92ff", "round": 9, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:02.184258+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 9, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:02.184278+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 9, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:02.184294+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 10}
+{"ts": "2026-03-15T23:27:04.764915+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 10, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:04.764951+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 10, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:04.764963+00:00", "event": "decay", "game_id": "d18d92ff", "round": 10, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:04.764973+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 10, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:04.764982+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 10, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:04.764989+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 11}
+{"ts": "2026-03-15T23:27:07.416870+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 11, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:07.417067+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 11, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:07.417144+00:00", "event": "decay", "game_id": "d18d92ff", "round": 11, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:07.417206+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 11, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:07.417287+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 11, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:07.417330+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 12}
+{"ts": "2026-03-15T23:27:10.082983+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 12, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:10.083041+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 12, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:10.083057+00:00", "event": "decay", "game_id": "d18d92ff", "round": 12, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:10.083070+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 12, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:10.083081+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 12, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:10.083089+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 13}
+{"ts": "2026-03-15T23:27:13.253268+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 13, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:13.253331+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 13, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:13.253348+00:00", "event": "decay", "game_id": "d18d92ff", "round": 13, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:13.253362+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 13, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:13.253378+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 13, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:13.253387+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 14}
+{"ts": "2026-03-15T23:27:15.817503+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 14, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:15.818025+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 14, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:15.818094+00:00", "event": "decay", "game_id": "d18d92ff", "round": 14, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:15.818131+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 14, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:15.818177+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 14, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:15.818200+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 15}
+{"ts": "2026-03-15T23:27:19.082776+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 15, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:19.082996+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 15, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:19.083080+00:00", "event": "decay", "game_id": "d18d92ff", "round": 15, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:19.083208+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 15, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:19.083262+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 15, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:19.083307+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 16}
+{"ts": "2026-03-15T23:27:21.835261+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 16, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:21.835416+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 16, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:21.835465+00:00", "event": "decay", "game_id": "d18d92ff", "round": 16, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:21.835503+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 16, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:21.835531+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 16, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:21.835554+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 17}
+{"ts": "2026-03-15T23:27:24.621552+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 17, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:24.621697+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 17, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:24.621738+00:00", "event": "decay", "game_id": "d18d92ff", "round": 17, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:24.621770+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 17, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:24.621792+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 17, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:24.621812+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 18}
+{"ts": "2026-03-15T23:27:27.280465+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 18, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:27.280495+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 18, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:27.280508+00:00", "event": "decay", "game_id": "d18d92ff", "round": 18, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:27.280517+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 18, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:27.280525+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 18, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:27.280532+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 19}
+{"ts": "2026-03-15T23:27:30.049743+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 19, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:30.049835+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 19, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:30.049859+00:00", "event": "decay", "game_id": "d18d92ff", "round": 19, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:30.049880+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 19, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:30.049897+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 19, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:30.049910+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 20}
+{"ts": "2026-03-15T23:27:30.049928+00:00", "event": "perturbation", "game_id": "d18d92ff", "round": 20, "type": "defective_to_cooperative"}
+{"ts": "2026-03-15T23:27:32.701071+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 20, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:32.701134+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 20, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:32.701158+00:00", "event": "decay", "game_id": "d18d92ff", "round": 20, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:32.701178+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 20, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:32.701195+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 20, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:32.701208+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 21}
+{"ts": "2026-03-15T23:27:35.661822+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 21, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:35.661955+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 21, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:35.661999+00:00", "event": "decay", "game_id": "d18d92ff", "round": 21, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:35.662031+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 21, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:35.662054+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 21, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:35.662076+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 22}
+{"ts": "2026-03-15T23:27:38.651550+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 22, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:38.651616+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 22, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:38.651639+00:00", "event": "decay", "game_id": "d18d92ff", "round": 22, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:38.651656+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 22, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:38.651671+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 22, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:38.651698+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 23}
+{"ts": "2026-03-15T23:27:41.356373+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 23, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:41.356423+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 23, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:41.356436+00:00", "event": "decay", "game_id": "d18d92ff", "round": 23, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:41.356447+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 23, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:41.356456+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 23, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:41.356463+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 24}
+{"ts": "2026-03-15T23:27:44.163911+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 24, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:44.163950+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 24, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:44.163964+00:00", "event": "decay", "game_id": "d18d92ff", "round": 24, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:44.163975+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 24, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:44.163985+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 24, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:44.163992+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 25}
+{"ts": "2026-03-15T23:27:47.030784+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 25, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:47.030828+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 25, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:47.030843+00:00", "event": "decay", "game_id": "d18d92ff", "round": 25, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:47.030856+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 25, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:47.030866+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 25, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:47.030874+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 26}
+{"ts": "2026-03-15T23:27:49.955339+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 26, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:49.955500+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 26, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:49.955547+00:00", "event": "decay", "game_id": "d18d92ff", "round": 26, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:49.955579+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 26, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:49.955616+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 26, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:49.955634+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 27}
+{"ts": "2026-03-15T23:27:52.948474+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 27, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:52.948523+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 27, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:52.948535+00:00", "event": "decay", "game_id": "d18d92ff", "round": 27, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:52.948546+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 27, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:52.948554+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 27, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:52.948560+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 28}
+{"ts": "2026-03-15T23:27:55.406350+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 28, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:55.406381+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 28, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:55.406392+00:00", "event": "decay", "game_id": "d18d92ff", "round": 28, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:55.406400+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 28, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:55.406408+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 28, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:55.406414+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 29}
+{"ts": "2026-03-15T23:27:58.648487+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 29, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:27:58.648543+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 29, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:27:58.648566+00:00", "event": "decay", "game_id": "d18d92ff", "round": 29, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:27:58.648580+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 29, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:58.648592+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 29, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:27:58.648608+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 30}
+{"ts": "2026-03-15T23:28:01.476856+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 30, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:28:01.479075+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 30, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:28:01.479111+00:00", "event": "decay", "game_id": "d18d92ff", "round": 30, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:28:01.479149+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 30, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:28:01.479163+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 30, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:28:01.479174+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 31}
+{"ts": "2026-03-15T23:28:04.603096+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 31, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:28:04.603147+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 31, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:28:04.603161+00:00", "event": "decay", "game_id": "d18d92ff", "round": 31, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:28:04.603173+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 31, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:28:04.603183+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 31, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:28:04.603190+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 32}
+{"ts": "2026-03-15T23:28:07.147814+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 32, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:28:07.147881+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 32, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:28:07.147902+00:00", "event": "decay", "game_id": "d18d92ff", "round": 32, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:28:07.147919+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 32, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:28:07.147934+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 32, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:28:07.147944+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 33}
+{"ts": "2026-03-15T23:28:09.984358+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 33, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:28:09.984513+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 33, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:28:09.984551+00:00", "event": "decay", "game_id": "d18d92ff", "round": 33, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:28:09.984579+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 33, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:28:09.984599+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 33, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:28:09.984615+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 34}
+{"ts": "2026-03-15T23:28:12.848512+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 34, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:28:12.848766+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 34, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:28:12.848826+00:00", "event": "decay", "game_id": "d18d92ff", "round": 34, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:28:12.848869+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 34, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:28:12.848902+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 34, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:28:12.848930+00:00", "event": "round_start", "game_id": "d18d92ff", "round": 35}
+{"ts": "2026-03-15T23:28:16.116168+00:00", "event": "proposal", "game_id": "d18d92ff", "round": 35, "agent_a": {"action": "pass"}, "agent_b": {"action": "pass"}}
+{"ts": "2026-03-15T23:28:16.116241+00:00", "event": "trade_result", "game_id": "d18d92ff", "round": 35, "accepted": false, "give_a": {}, "want_a": {}}
+{"ts": "2026-03-15T23:28:16.116265+00:00", "event": "decay", "game_id": "d18d92ff", "round": 35, "inventories": {"a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "a1": {"W": 0, "S": 0, "G": 0, "C": 0}}}
+{"ts": "2026-03-15T23:28:16.116286+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 35, "agent_id": "a0", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:28:16.116303+00:00", "event": "round_end", "game_id": "d18d92ff", "round": 35, "agent_id": "a1", "family": "deepseek", "inventory": {"W": 0, "S": 0, "G": 0, "C": 0}, "inventory_value": 0, "trade_executed": false}
+{"ts": "2026-03-15T23:28:16.116318+00:00", "event": "game_end", "game_id": "d18d92ff", "total_rounds": 35, "completed_trades": 1, "total_cost_usd": 0.007268969999999992, "final_inventory_a0": {"W": 0, "S": 0, "G": 0, "C": 0}, "final_inventory_a1": {"W": 0, "S": 0, "G": 0, "C": 0}, "parse_failure_count": 0}

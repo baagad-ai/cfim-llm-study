@@ -1,0 +1,16 @@
+{
+  "session_id": "bd9c0c97",
+  "family_a": "llama",
+  "family_b": "llama",
+  "condition": "C",
+  "disclosure": "disclosed",
+  "framing": "neutral",
+  "cooperation_rate": 0.0,
+  "exploitation_delta": 0.0,
+  "adaptation_lag": 3,
+  "betrayal_recovery": 1,
+  "total_cost_usd": 0.01584946999999999,
+  "total_rounds": 35,
+  "completed_trades": 0,
+  "parse_failure_count": 0
+}

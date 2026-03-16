@@ -1,0 +1,13 @@
+{
+  "family_a": "llama",
+  "family_b": "llama",
+  "condition": "C",
+  "disclosure": "blind",
+  "prompt_framing": "neutral",
+  "rounds": 35,
+  "decay_rate": 0.1,
+  "perturbation_round": 20,
+  "session_id": "430e0733",
+  "wall_clock_seconds": 46.39,
+  "replicate": 1
+}
