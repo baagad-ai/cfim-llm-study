@@ -12,9 +12,17 @@ build/
 .env
 *.env.local
 
-# Data (large files — use git-lfs or Hugging Face for actual data)
+# Data — game logs, session outputs, processed results
+# Only metadata (OSF registration, etc.) is tracked
 data/raw/
 data/processed/
+data/phase0/
+data/phase1/
+data/phase2/
+data/study1/
+data/study2/
+# Keep data/metadata/ tracked (OSF registration JSON, etc.)
+!data/metadata/
 
 # Jupyter
 .ipynb_checkpoints/

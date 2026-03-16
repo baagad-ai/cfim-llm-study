@@ -7,9 +7,9 @@
 
 **Registration date:** 2026-03-15 (prior to Phase 1 data collection)
 
-**GitHub repository:** https://github.com/[to-be-added]/cfim-study
+**GitHub repository:** https://github.com/baagad-ai/cfim-llm-study
 
-**Primary analysis stub commit:** [to-be-added — commit hash of this file's first commit]
+**Primary analysis stub commit:** [to be filled at OSF submission — use `git rev-parse HEAD` at time of submission]
 
 **Target venue:** AAMAS 2027, GAAI track (full paper); backup NeurIPS 2026 Foundation Models workshop
 

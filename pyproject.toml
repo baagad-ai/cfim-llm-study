@@ -3,9 +3,9 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.backends.legacy:build"
 
 [project]
-name = "pairwise-behavioral-signatures"
+name = "cfim-llm-study"
 version = "0.1.0"
-description = "Pairwise Behavioral Signatures: LLM Family Economic Simulation"
+description = "Cross-Family Interaction Matrix: Opponent-Contingent Behavioral Profiles in LLM Agents"
 requires-python = ">=3.11"
 readme = "README.md"
 license = { text = "MIT" }
