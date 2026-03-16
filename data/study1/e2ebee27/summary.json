@@ -1,0 +1,16 @@
+{
+  "session_id": "e2ebee27",
+  "family_a": "mistral",
+  "family_b": "llama",
+  "condition": "A",
+  "disclosure": "blind",
+  "framing": "neutral",
+  "cooperation_rate": 0.0,
+  "exploitation_delta": 0.0,
+  "adaptation_lag": null,
+  "betrayal_recovery": 1,
+  "total_cost_usd": 0.007243010000000003,
+  "total_rounds": 35,
+  "completed_trades": 0,
+  "parse_failure_count": 0
+}
