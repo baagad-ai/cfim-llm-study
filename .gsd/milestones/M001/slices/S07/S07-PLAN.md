@@ -1,7 +1,8 @@
-# S07: OSF Pre-Registration
+# S07: OSF Pre-Registration [DEPRECATED — SUPERSEDED BY S04]
 
-**Authoritative spec:** `.gsd/milestones/M001/slices/S05/S05-PLAN.md`
-**Note:** This slice was dispatched as S07. The canonical slice plan content is in S05-PLAN.md.
+**STATUS: DO NOT EXECUTE. This is a stale duplicate.**
+**Canonical completed slice: S04** (all tasks done, registration live at https://osf.io/9354h)
+**This directory exists only for historical reference.**
 
 **Goal:** Submit formal OSF pre-registration before any Phase 1 production games begin. Lock hypotheses H1–H5 with analysis stubs committed. Record registration URL.
 **Demo:** OSF registration URL recorded in `data/metadata/osf_registration.json`. `docs/osf_preregistration.md` committed. Analysis stubs H1–H5 committed and referenced by the registration.

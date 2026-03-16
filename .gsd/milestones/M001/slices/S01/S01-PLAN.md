@@ -40,5 +40,5 @@ grep '"event": "game_end"' data/study1/*/game.jsonl | python3 -c \
 - [x] **T03: Metrics (M1–M4)** `est:1h`
   > DONE. M1–M4 computed in `_compute_metrics()` inside `rne_game.py`. M1=cooperation_rate, M2=exploitation_delta, M3=adaptation_lag, M4=betrayal_recovery. Covered by `test_m1_computation` and engine integration tests.
 
-- [ ] **T04: run_rne.py CLI + smoke run** `est:1h`
+- [x] **T04: run_rne.py CLI + smoke run** `est:1h`
   > NEXT. Write `scripts/run_rne.py` CLI. Run real Mistral×Llama smoke session (≥1 accepted trade, cost ≤$0.05). Verify 70 round_end events and 1 perturbation event in `data/study1/`.
